@@ -1,1 +1,3 @@
-print("Hello world!")
+from dotenv import load_dotenv
+
+load_dotenv()
