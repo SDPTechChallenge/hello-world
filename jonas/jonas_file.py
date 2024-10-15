@@ -2,6 +2,8 @@ from dotenv import load_dotenv
 from openai import OpenAI
 import os 
 
+# Lembrar de colocar as chaves de API no arquivo .env no formato NOME_DA_CHAVE=VALOR_DA_CHAVE 
+
 load_dotenv()
 
 client = OpenAI(
