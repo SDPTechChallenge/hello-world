@@ -8,7 +8,7 @@ class BasicChatbot():
         self.model_name = None
         self.messages = None
         self.llm_client = None
-        # Replace 'None' with the necessary code. Remember that 'llm_client' is an instance of the OpenAI object and
+        # Replace 'None' with the necessary code. Remember that 'llm_client' is an instance of the OpenAI object and that
         # 'messages' is a list of message objects. This list grows as the chat progresses and new messages are exchanged.
         # Message object example: {'role': 'system | user | assistant', 'content': 'This is a message from the system, assistant or user'} 
         # The 'example_conversation.json' file contains an example of a list of messages
