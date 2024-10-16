@@ -33,6 +33,6 @@ class BasicChatbot():
     
 # The code below should work after the correct implementation
 cool_chatbot = BasicChabot("model_name", "You are a helpful assistant who specializes in...")
-llm_response = cool_chatbot.get_completions("Hello! Write a short poem about life.")
+llm_response = cool_chatbot("Hello! Write a short poem about life.")
 print(llm_response)
 
