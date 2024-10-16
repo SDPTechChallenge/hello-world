@@ -13,7 +13,8 @@ response = openai_client.chat.completions.create(
     messages=[
         {"role": "system", "content": "You are a helpful assistant."},
         {"role": "user", "content": prompt}
-    ]
+    ],
+    temperature=0.7
 )
 
 response_content = response.choices[0].message.content
