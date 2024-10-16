@@ -4,7 +4,7 @@ import os
 # Remove the 'pass' statements. These are placeholders for actual code.
 
 class BasicChatbot():
-    def __init__(self, model_name='model_name_here', system_message = None):
+    def __init__(self, model_name='model_name_here', system_message = ""):
         self.model_name = None
         self.messages = None
         self.llm_client = None
