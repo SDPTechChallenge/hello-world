@@ -16,7 +16,7 @@ class BasicChatbot():
     def get_completion(self, message):
         pass
         # 1) Append user message to 'self.messages'
-        # 2) Call LLM with user message and wait for response
+        # 2) Call LLM with list of messages and wait for response
         # 3) Append response text to 'self.messages' with the 'assistant' role
         # 4) Return response text
     
