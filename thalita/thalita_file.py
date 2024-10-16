@@ -1,4 +1,4 @@
-# sempre começar com git pull
+# no diretorio hello world, sempre começar com git pull, em seguida git add . e depois git commit -m "a mensagem aqui" e ao final git push
 
 from dotenv import load_dotenv
 from openai import OpenAI
