@@ -100,6 +100,7 @@ class BasicChatbot:
     pattern = re.match(r'calculate\s?\:\s?(.*)', text)
     # Isso é uma expressão regular (RegEx). Usamos isto para encontrar texto que siga um determinado padrão em uma string.
     # Neste caso, estamos procurando o padrão "calculate : <algum_calculo>" dentro da string
+    
     if pattern:
       # Se o padrão for encontrado, 1) extraímos ele da string e 2) efetuamos o cálculo
       # usando a funcao "eval", que calcula uma expressão fornecida como string
