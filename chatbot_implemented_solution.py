@@ -6,12 +6,12 @@ import re
 
 load_dotenv()
 
-# A string abaixo é uma mensagem de sistema que fornece instruções à LLM sobre como agir.
+# A string abaixo é uma mensagem de sistema que fornece instruções à LLM sobre como responder e agir.
 # Mensagens de sistema são a primeira mensagem incluída na lista de mensagens enviadas em cada chamada.
-# Elas orientam o comportamento da LLM, fornecendo diretrizes sobre como ela deve responder.
-# No caso deste chatbot, estamos configurando a LLM para chamar uma "ferramenta" quando necessário.
-# A lógica externa (neste caso, uma ferramenta de cálculo) é acionada com a chamada 'calculate'.
-# Abaixo, há exemplos de conversas, que ajudam a definir o comportamento desejado do modelo, chamado de "few-shot prompting".
+# Elas orientam o comportamento da LLM, fornecendo instrucoes, diretrizes e exemplos sobre como ela deve responder.
+# No caso deste chatbot, estamos configurando a LLM para chamar uma "ferramenta" quando a mesma julgar necessário.
+# A lógica externa (neste caso, uma ferramenta de cálculo) é acionada com a chamada da ferramenta 'calculate'.
+# Na mensagem de sistema abaixo, há exemplos de interações entre o usuário e o assistente, o que ajuda a definir o comportamento desejado do modelo. Isso é conhecido como "few-shot prompting".
 
 primer = """
 You are a friendly, helpful assistant. Your task is to provide concise and helpful answers to general user questions.
@@ -115,6 +115,9 @@ class BasicChatbot:
   def start_conversation_loop(self):
     # Implementação do loop de conversa com o usuário.
     while True:
+      # Aqui usamos a funcao "input()" para obter a mwndagem do usuário 
+      # Caso o mesmo digite "exit", o loop é encerrado e a conversa acaba. 
+      # Caso contrário, o método "get_completion()" é continuamente chamado.
       user_input = input("Você: ")
       if user_input.lower() == "exit":
         print("Encerrando a conversa. Até logo!")
