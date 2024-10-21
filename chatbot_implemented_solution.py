@@ -6,13 +6,12 @@ import re
 
 load_dotenv()
 
-# A string abaixo é uma mensagem de sistema que fornece instruções à LLM sobre como agir
-# Mensagens de sistema são a primeira mensagem incluída na lista de mensagens enviadas em cada call.
-# Elas fornecem instruções de como a LLM deve se "comportar", assim como orientações mais específicas, no caso de LLMs que façam uso de ferramentas, como é o caso desta.
-# Aqui, estamos orientando a LLM a exibir um output específico ('calculate') em determinados casos.abs
-# Isso permite que implementemos uma lógica externa à LLM, efetivamente dando a ela uma "ferramenta" que a mesma pode utilizar caso necessário.
-# Notem que na mensagem de sistema abaixo, foram também incluídos exemplos de uma conversa para que a LLM tenha como base.
-# Isso é chamado de "few-shot prompting" - é quando damos exemplos de uma conversa ideal para balizar e melhor controlar o comportamento do modelo.
+# A string abaixo é uma mensagem de sistema que fornece instruções à LLM sobre como agir.
+# Mensagens de sistema são a primeira mensagem incluída na lista de mensagens enviadas em cada chamada.
+# Elas orientam o comportamento da LLM, fornecendo diretrizes sobre como ela deve responder.
+# No caso deste chatbot, estamos configurando a LLM para chamar uma "ferramenta" quando necessário.
+# A lógica externa (neste caso, uma ferramenta de cálculo) é acionada com a chamada 'calculate'.
+# Abaixo, há exemplos de conversas, que ajudam a definir o comportamento desejado do modelo, chamado de "few-shot prompting".
 
 primer = """
 You are a friendly, helpful assistant. Your task is to provide concise and helpful answers to general user questions.
@@ -31,7 +30,7 @@ User: Cool. How much is 11 x 8.5?
 Assistant: calculate : 11 * 8.5
 User: <ANSWER>93.5</ANSWER>
 Assistant: The answer is 93.50. Is there anything else I can help you with?
-User: Yes. Who was first president of the United States?
+User: Yes. Who was the first president of the United States?
 Assistant: The first president of the United States was George Washington, who served from 1789 to 1797.
 User: Cool. How much is 1797 divided by 9 plus 4.1239 squared?
 Assistant: calculate: 1797 / 9 + 4.1239 ** 2
@@ -48,26 +47,26 @@ class BasicChatbot:
     self.messages = []
     self.llm_client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
     
-    # Se nenhuma mensagem de sistema for passada para o construtor da classe, 
+    # Se nenhuma mensagem de sistema for passada para o construtor da classe,
     # usamos o "primer" (instruções acima). Caso contrário, usamos a mensagem
-    # de sistema que foi passada para o construtor. Por padrão, ela é 'None'
-    # (ou seja, por padrão, usa-se o primer)
+    # de sistema que foi passada para o construtor. Por padrão, ela é 'None',
+    # ou seja, usa-se o primer.
     if system_message is None:
       self.messages.append({"role" : "system", "content" : primer})
     else:
       self.messages.append({"role" : "system", "content" : system_message})
 
   def get_completion(self, message=None):
-    # A mensagem é sempre um dict contendo as chaves "role" e "content"
-    # A chave "role" pode ser "system" (mensagem de sistema), "assistant" (a mensagem de resposta da LLM) ou "user" (mensagem do usuário)
+    # A mensagem é sempre um dict contendo as chaves "role" e "content".
+    # A chave "role" pode ser "system" (mensagem de sistema), "assistant" (resposta da LLM) ou "user" (mensagem do usuário).
     
-    # Aqui, se o método tiver sido chamado com uma mensagem do usuário, inserimos a mesma na lista.abs
+    # Aqui, se o método tiver sido chamado com uma mensagem do usuário, inserimos a mesma na lista.
     # Fazemos esta verificação porque haverá casos, neste Chatbot em particular, em que este método será 
     # chamado sem uma nova mensagem do usuário.
     if message: 
       self.messages.append({"role" : "user", "content" : message})
     
-    # Chamada padrão da API da OpenAI, que foi instanciada no construtor da classe como "llm_client"
+    # Chamada padrão da API da OpenAI, que foi instanciada no construtor da classe como "llm_client".
     response = self.llm_client.chat.completions.create(
         model=self.model_name, 
         temperature=0.2, 
@@ -75,22 +74,21 @@ class BasicChatbot:
         stream=False
     )
 
-    # Aqui, extraímos o conteúdo da resposta da LLM e inserimos-no à lista de mensagens
+    # Aqui, extraímos o conteúdo da resposta da LLM e o adicionamos à lista de mensagens.
     response_text = response.choices[0].message.content
     self.messages.append({'role': 'assistant', 'content': response_text})
     
-    # Abaixo, tentamos descobrir se a mensagem da LLM contém o padrão "calculate : <algum_calculo>"
+    # Abaixo, verificamos se a resposta da LLM contém o padrão "calculate : <algum_calculo>".
     calc_result = self.get_calculation(response_text)
     
-    # Caso sim, "calc_result" conterá o resultado do cálculo, que será enviado à LLM
+    # Caso o padrão seja encontrado, "calc_result" conterá o resultado do cálculo, que será enviado à LLM.
     if calc_result:
       self.messages.append({'role': 'user', 'content' : f'<ANSWER>{calc_result}</ANSWER>'})
-      # Após inserir a resposta do cálculo na mensagem, chamamos a LLM novamente. 
-      # Com a resposta no formato <ANSWER>Resposta</ANSWER>, especificado na mensagem de sistema,
-      # a LLM terá feito o uso de uma ferramenta (calculate) e poderá fornecer uma resposta
+      # Após inserir o resultado do cálculo na lista de mensagens, chamamos a LLM novamente.
+      # Com a resposta no formato <ANSWER>Resultado</ANSWER>, a LLM reconhecerá o uso da ferramenta.
       response_text = self.get_completion()
       
-    # Em qualquer caso, o método sempre retorna a string atribuída a "response_text"
+    # Retornamos a string contendo o texto da resposta da LLM.
     return response_text
 
   def get_messages(self):
@@ -98,16 +96,16 @@ class BasicChatbot:
 
   def get_calculation(self, text):
     pattern = re.match(r'calculate\s?\:\s?(.*)', text)
-    # Isso é uma expressão regular (RegEx). Usamos isto para encontrar texto que siga um determinado padrão em uma string.
-    # Neste caso, estamos procurando o padrão "calculate : <algum_calculo>" dentro da string
+    # Esta é uma expressão regular (RegEx). Usamos isto para encontrar texto que siga um determinado padrão em uma string.
+    # Neste caso, estamos procurando o padrão "calculate : <algum_calculo>" dentro da string.
     
     if pattern:
-      # Se o padrão for encontrado, 1) extraímos ele da string e 2) efetuamos o cálculo
-      # usando a funcao "eval", que calcula uma expressão fornecida como string
+      # Se o padrão for encontrado, 1) extraímos o cálculo da string e 2) o executamos
+      # usando a função "eval", que avalia expressões fornecidas como string.
       return eval(pattern.groups()[0].strip())
     else:
-      # Caso o padrão não tenha sido encontrado (ou seja, a mensagem não contém um pedido de uso da ferramenta
-      # "calculate" por parte da LLM, retornamos 'None')
+      # Caso o padrão não seja encontrado, ou seja, a mensagem não contém um pedido de cálculo,
+      # retornamos 'None'.
       return None
 
   def save_messages_to_file(self, filename):
@@ -115,10 +113,16 @@ class BasicChatbot:
         json.dump(self.messages, file)
         
   def start_conversation_loop(self):
-    # Falta implementar o loop que manter a conversa fluindo
-    passS
+    # Implementação do loop de conversa com o usuário.
+    while True:
+      user_input = input("Você: ")
+      if user_input.lower() == "exit":
+        print("Encerrando a conversa. Até logo!")
+        break
+      response = self.get_completion(user_input)
+      print(f"Assistente: {response}")
   
-  # __call__ é um método mágico que permite chamar o objeto instanciado como se o mesmo fosse uma função.
-  # Neste caso, ele serve apenas como um atalho para o método interno "get_completion()"
+  # __call__ é um método especial ("magic method" ou "dunder method") que permite chamar o objeto instanciado como se ele fosse uma função.
+  # Neste caso, ele serve apenas como um atalho para o método interno "get_completion()".
   def __call__(self, message):
     return self.get_completion(message)
