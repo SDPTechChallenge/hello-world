@@ -98,8 +98,10 @@ class BasicChatbotWithTool:
     # Neste caso, estamos procurando o padrão "calculate : <algum_calculo>" dentro da string.
     
     if pattern:
-      # Se o padrão for encontrado, 1) extraímos o cálculo da string e 2) o executamos
-      # usando a função "eval", que avalia expressões fornecidas como string.
+      # Se o padrão for encontrado, 1) extraímos o cálculo da string e 2) o executamos usando a 
+      # função "eval", que avalia e executa expressões fornecidas como string como se fossem código.
+      # Exemplo: eval("2 + 2") retorna 4. A diferença é que o cálculo foi executado a partir de uma string, 
+      # o que torna a função "eval()" conveniente em nosso caso, visto que as respostas do modelo são strings.
       return eval(pattern.groups()[0].strip())
     else:
       # Caso o padrão não seja encontrado, ou seja, a mensagem não contém um pedido de cálculo,
