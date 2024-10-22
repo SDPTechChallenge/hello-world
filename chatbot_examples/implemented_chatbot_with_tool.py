@@ -102,7 +102,9 @@ class BasicChatbotWithTool:
       # função "eval", que avalia e executa expressões fornecidas como string como se fossem código.
       # Exemplo: eval("2 + 2") retorna 4. A diferença é que o cálculo foi executado a partir de uma string, 
       # o que torna a função "eval()" conveniente em nosso caso, visto que as respostas do modelo são strings.
-      return eval(pattern.groups()[0].strip())
+      calculation_pattern = pattern.groups()[0].strip()
+      calculation_answer = eval(calculation_pattern)
+      return calculation_answer
     else:
       # Caso o padrão não seja encontrado, ou seja, a mensagem não contém um pedido de cálculo,
       # retornamos 'None'.
