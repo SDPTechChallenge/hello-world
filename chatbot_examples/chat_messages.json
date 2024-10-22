@@ -1,0 +1,54 @@
+[
+  {
+    "role": "system",
+    "content": "\nYou are a friendly, helpful assistant. Your task is to provide concise and helpful answers to general user questions.\nThe user may ask you to perform a mathematical calculation, in which case you MUST call a tool named \"calculate\".\nUpon calling the tool, the user will provide you with the calculation's answer within <ANSWER> tags. You will then provide the answer as a response back to the user.\nThe tool call must be formatted as follows:\n\ncalculate : <calculation_to_be_performed>\n\nConversation example:\nUser: Hello there!\nAssistant: Hello! How can I help you today?\nUser: What is the capital of France?\nAssistant: The capital of France is Paris.\nUser: Cool. How much is 11 x 8.5?\nAssistant: calculate : 11 * 8.5\nUser: <ANSWER>93.5</ANSWER>\nAssistant: The answer is 93.50. Is there anything else I can help you with?\nUser: Yes. Who was the first president of the United States?\nAssistant: The first president of the United States was George Washington, who served from 1789 to 1797.\nUser: Cool. How much is 1797 divided by 9 plus 4.1239 squared?\nAssistant: calculate: 1797 / 9 + 4.1239 ** 2\nUser: <ANSWER>216.67321787666666</ANSWER>\nAssistant: The answer is 216.67.\nUser: Thanks!\n\nYou should format the argument of 'calculate' as an input to the \"eval\" function in Python.\n"
+  },
+  { "role": "user", "content": "Ol\u00e1, boa noite!" },
+  {
+    "role": "assistant",
+    "content": "Ol\u00e1! Boa noite! Como posso ajudar voc\u00ea hoje?"
+  },
+  { "role": "user", "content": "Qual a capital da Russia?" },
+  {
+    "role": "assistant",
+    "content": "A capital da R\u00fassia \u00e9 Moscovo."
+  },
+  {
+    "role": "user",
+    "content": "Em que ano nasceu o primeiro presidente dos Estados Unidos?"
+  },
+  {
+    "role": "assistant",
+    "content": "O primeiro presidente dos Estados Unidos, George Washington, nasceu em 22 de fevereiro de 1732."
+  },
+  {
+    "role": "user",
+    "content": "Eleve o ano ao quadrado e multiplique o resultado por 98745.3245"
+  },
+  { "role": "assistant", "content": "calculate : (1732 ** 2) * 98745.3245" },
+  { "role": "user", "content": "<ANSWER>296218594322.888</ANSWER>" },
+  {
+    "role": "assistant",
+    "content": "O resultado \u00e9 296218594322.89. Posso ajudar com mais alguma coisa?"
+  },
+  { "role": "user", "content": "Sim. Obtenha a raiz c\u00fabica deste valor." },
+  { "role": "assistant", "content": "calculate : (296218594322.888) ** (1/3)" },
+  { "role": "user", "content": "<ANSWER>6666.083850916456</ANSWER>" },
+  {
+    "role": "assistant",
+    "content": "A raiz c\u00fabica do valor \u00e9 aproximadamente 6666.08. H\u00e1 mais alguma coisa em que eu possa ajudar?"
+  },
+  {
+    "role": "user",
+    "content": "Qual string de c\u00e1lculo foi informada para a ferramenta calculate?"
+  },
+  {
+    "role": "assistant",
+    "content": "A string de c\u00e1lculo informada para a ferramenta calculate foi: \\( (296218594322.888) ** (1/3) \\)."
+  },
+  { "role": "user", "content": "Perfeito, obrigado. " },
+  {
+    "role": "assistant",
+    "content": "De nada! Se precisar de mais alguma coisa, \u00e9 s\u00f3 chamar. Tenha um \u00f3timo dia!"
+  }
+]

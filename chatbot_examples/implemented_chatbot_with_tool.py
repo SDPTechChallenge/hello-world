@@ -41,11 +41,11 @@ User: Thanks!
 You should format the argument of 'calculate' as an input to the "eval" function in Python.
 """
 
-class BasicChatbot:
+class BasicChatbotWithTool:
   def __init__(self, model_name = "gpt-4o-mini", system_message=None):
     self.model_name = model_name
     self.messages = []
-    self.llm_client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+    self.llm_client = OpenAI()
     
     # Se nenhuma mensagem de sistema for passada para o construtor da classe,
     # usamos o "primer" (instruções acima). Caso contrário, usamos a mensagem
@@ -56,17 +56,16 @@ class BasicChatbot:
     else:
       self.messages.append({"role" : "system", "content" : system_message})
 
-  def get_completion(self, message=None):
+  def get_completion(self, message):
     # A mensagem é sempre um dict contendo as chaves "role" e "content".
     # A chave "role" pode ser "system" (mensagem de sistema), "assistant" (resposta da LLM) ou "user" (mensagem do usuário).
     
-    # Aqui, se o método tiver sido chamado com uma mensagem do usuário, inserimos a mesma na lista.
-    # Fazemos esta verificação porque haverá casos, neste Chatbot em particular, em que este método será 
-    # chamado sem uma nova mensagem do usuário.
-    if message: 
-      self.messages.append({"role" : "user", "content" : message})
+    # Inicialmente, inserimos a mensagem do usuário (argumento "message") na lista de mensagens.
+    self.messages.append({"role" : "user", "content" : message})
     
     # Chamada padrão da API da OpenAI, que foi instanciada no construtor da classe como "llm_client".
+    # Importante: a lista completa de mensagens trocadas até o momento é passada para o modelo em todas as chamadas
+    # Isso assegura que o contexto, ou memória da conversa, será mantida ao longo da interacao.
     response = self.llm_client.chat.completions.create(
         model=self.model_name, 
         temperature=0.2, 
@@ -83,12 +82,11 @@ class BasicChatbot:
     
     # Caso o padrão seja encontrado, "calc_result" conterá o resultado do cálculo, que será enviado à LLM.
     if calc_result:
-      self.messages.append({'role': 'user', 'content' : f'<ANSWER>{calc_result}</ANSWER>'})
-      # Após inserir o resultado do cálculo na lista de mensagens, chamamos a LLM novamente.
-      # Com a resposta no formato <ANSWER>Resultado</ANSWER>, a LLM reconhecerá o uso da ferramenta.
-      response_text = self.get_completion()
+      # Havendo resultado do cálculo, chamamos a LLM novamente com a resposta no 
+      # formato <ANSWER>Resultado</ANSWER>, conforme especificado na mensagem de sistema.
+      response_text = self.get_completion(f'<ANSWER>{calc_result}</ANSWER>')
       
-    # Retornamos a string contendo o texto da resposta da LLM.
+    # Enfim, retornamos a string contendo a resposta da LLM.
     return response_text
 
   def get_messages(self):
@@ -121,6 +119,7 @@ class BasicChatbot:
       user_input = input("Você: ")
       if user_input.lower() == "exit":
         print("Encerrando a conversa. Até logo!")
+        self.save_messages_to_file('chatbot_conversation.json')
         break
       response = self.get_completion(user_input)
       print(f"Assistente: {response}")
