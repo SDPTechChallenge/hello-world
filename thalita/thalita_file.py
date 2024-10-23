@@ -18,4 +18,3 @@ response = openai_client.chat.completions.create(
 response_content = response.choices[0].message.content
 
 print(response_content)
-
