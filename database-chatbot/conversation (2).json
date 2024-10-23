@@ -1,0 +1,97 @@
+[
+  {
+    "role": "system",
+    "content": "\nYou are a SQL query assistant. The user will present trivial questions (e.g. 'What's the capital of France' or\n'Help me solve this math equation'. In these cases, answer normally. When asked to perform a database search,\nhowever, you must call an external SQL query tool. To call the tool, use the following output template:\n\nSQL_TOOL_CALL: <sql_query>\n\nReplace <sql_query> with a correct, properly formatted SQLite query, using the following table schemas as basis:\n\nTable: customers\nColumns: id, first_name, last_name, birthdate, street_address, city, state, country\n\nTable: products\nColumns: id, description, price, discount_price\n\n## Example conversation\n\nUser: Hello!\nAssistant: Hello! How can I help you today?\nUser: What is the capital of Russia?\nAssistant: The capital of Russia is Moscow.\nUser: Awesome! \nAssistant: I'm glad I could help! Is there anything else you need assistance with?\nUser: What table does the database have?\nAssistant: The database contains two tables: customers and products.\nUser: Got it! Please fetch the customers whose last names are \"Smith\"\nAssistant: SQL_TOOL_CALL: \"SELECT * FROM customers WHERE last_name = 'Smith'\"\nUser: <ROWS>[(1, 'Doe', 'John', '1985-07-23', 'New York', 'USA'), (2, 'Smith', 'Jane', '1990-02-14', 'London', 'UK'), (3, 'Garcia', 'Carlos', '1978-11-05', 'Madrid', 'Spain'), (4, 'Tanaka', 'Yuki', '1995-04-18', 'Tokyo', 'Japan'), (5, 'Dubois', 'Marie', '1983-09-30', 'Paris', 'France'), (6, 'Evans', 'Sarah', '1982-03-12', 'London', 'UK')]</ROWS>\nAssistant: Here are the obtained results: (List the returned rows in a table format)\nUser: Thanks!\n\n## Important notes:\n\n1) Remember to use the following syntax to perform an SQL tool call: `SQL_TOOL_CALL: <sql_query>`\n2) Upon calling a tool, the user will provide a list of results within <ROWS> tags, as seen in the example\n3) Based on the provided list, you will present the information in a suitable fashion (e.g. using a table for lists of tuples, or using natural language if the returned result is shorter, such as the result of an aggregate function, a single number etc.)\n4) For all other, non-database-related user questions, respond normally, without calling the tool.\n"
+  },
+  { "role": "user", "content": "Hello there!" },
+  { "role": "assistant", "content": "Hello! How can I assist you today?" },
+  { "role": "user", "content": "What year did Michael Jackson die?" },
+  { "role": "assistant", "content": "Michael Jackson died on June 25, 2009." },
+  {
+    "role": "user",
+    "content": "That's a shame. He was such a talented singer."
+  },
+  {
+    "role": "assistant",
+    "content": "Absolutely, he was an incredibly talented artist and left a lasting impact on the music industry. Is there anything else you'd like to discuss or inquire about?"
+  },
+  {
+    "role": "user",
+    "content": "I was wondering what kinds of information you can obtain."
+  },
+  {
+    "role": "assistant",
+    "content": "I can help you obtain information from a database that includes two tables: customers and products. The customers table contains details such as id, first name, last name, birthdate, street address, city, state, and country. The products table includes information like id, description, price, and discount price. If you have a specific query in mind, feel free to ask!"
+  },
+  {
+    "role": "user",
+    "content": "Awesome! I'd like to know the average age of all customers who live in the UK."
+  },
+  {
+    "role": "assistant",
+    "content": "SQL_TOOL_CALL: \"SELECT AVG(strftime('%Y', 'now') - strftime('%Y', birthdate)) AS average_age FROM customers WHERE country = 'UK'\""
+  },
+  { "role": "user", "content": "<ROWS>39.11</ROWS>" },
+  {
+    "role": "assistant",
+    "content": "The average age of all customers who live in the UK is approximately 39.11 years. Is there anything else you would like to know?"
+  },
+  {
+    "role": "user",
+    "content": "That was great. Please count the number of products priced above 40 dollars."
+  },
+  {
+    "role": "assistant",
+    "content": "SQL_TOOL_CALL: \"SELECT COUNT(*) AS product_count FROM products WHERE price > 40\""
+  },
+  { "role": "user", "content": "<ROWS>387</ROWS>" },
+  {
+    "role": "assistant",
+    "content": "There are a total of 387 products priced above 40 dollars. If you have any more questions or need further assistance, just let me know!"
+  },
+  {
+    "role": "user",
+    "content": "Do we have any products with more than a 25% discount?"
+  },
+  {
+    "role": "assistant",
+    "content": "SQL_TOOL_CALL: \"SELECT * FROM products WHERE (price - discount_price) / price > 0.25\""
+  },
+  { "role": "user", "content": "<ROWS>[(0,)]</ROWS>" },
+  {
+    "role": "assistant",
+    "content": "There are no products that have more than a 25% discount. If you need any more information or have further questions, feel free to ask!"
+  },
+  {
+    "role": "user",
+    "content": "What was the SQL query that you used to obtain that information (previous question)? Please break it down."
+  },
+  {
+    "role": "assistant",
+    "content": "The SQL query I used to obtain information about products with more than a 25% discount is:\n\n```sql\nSELECT * FROM products WHERE (price - discount_price) / price > 0.25\n```\n\nHere's a breakdown of the query:\n\n1. **SELECT \\***: This part of the query indicates that we want to select all columns from the products table.\n\n2. **FROM products**: This specifies the table from which we are retrieving the data, which in this case is the products table.\n\n3. **WHERE (price - discount_price) / price > 0.25**: This condition filters the results to include only those products where the discount percentage is greater than 25%. \n   - `(price - discount_price)`: This calculates the amount of the discount by subtracting the discount price from the original price.\n   - `/ price`: This part divides the discount amount by the original price to calculate the discount rate as a fraction of the original price.\n   - `> 0.25`: This checks if the discount rate is greater than 25%.\n\nIf you have more questions about SQL or anything else, just let me know!"
+  },
+  {
+    "role": "user",
+    "content": "Awesome! Finally, list all customers who live in Sacramento, California."
+  },
+  {
+    "role": "assistant",
+    "content": "SQL_TOOL_CALL: \"SELECT * FROM customers WHERE city = 'Sacramento' AND state = 'California'\""
+  },
+  {
+    "role": "user",
+    "content": "<ROWS>[('John', 'Doe'), ('Jane', 'Smith'), ('Carlos', 'Garcia'), ('Yuki', 'Tanaka'), ('Marie', 'Dubois'), ('Sarah', 'Evans'), ('David', 'Brown'), ('Emily', 'Miller'), ('James', 'Wilson')]"
+  },
+  {
+    "role": "assistant",
+    "content": "Here are the customers who live in Sacramento, California:\n\n| First Name | Last Name |\n|------------|-----------|\n| John       | Doe       |\n| Jane       | Smith     |\n| Carlos     | Garcia    |\n| Yuki       | Tanaka    |\n| Marie      | Dubois    |\n| Sarah      | Evans     |\n| David      | Brown     |\n| Emily      | Miller    |\n| James      | Wilson    |\n\nIf you have any more questions or need further assistance, feel free to ask!"
+  },
+  {
+    "role": "user",
+    "content": "This would be all. Thank you so much for your help!"
+  },
+  {
+    "role": "assistant",
+    "content": "You're welcome! I'm glad I could assist you. If you ever have more questions in the future, don't hesitate to reach out. Have a great day!"
+  }
+]
