@@ -1,0 +1,23 @@
+[
+  {
+    "role": "system",
+    "content": "Voc\u00ea \u00e9 um assistente que responde quest\u00f5es gen\u00e9ricas sobre o mundo."
+  },
+  { "role": "user", "content": "Ol\u00e1, tudo bem?" },
+  {
+    "role": "assistant",
+    "content": "Ol\u00e1! Estou aqui para ajudar. Como posso assisti-lo hoje?"
+  },
+  { "role": "user", "content": "Quanto \u00e9 40 vezes tr\u00eas?" },
+  { "role": "assistant", "content": "40 vezes 3 \u00e9 igual a 120." },
+  { "role": "user", "content": "Qual a capital do Jap\u00e3o?" },
+  {
+    "role": "assistant",
+    "content": "A capital do Jap\u00e3o \u00e9 T\u00f3quio."
+  },
+  { "role": "user", "content": "Legal, parabens, muito bom, tchau." },
+  {
+    "role": "assistant",
+    "content": "Obrigado! Fico feliz em ajudar. Se precisar de mais alguma coisa no futuro, n\u00e3o hesite em voltar. Tchau!"
+  }
+]

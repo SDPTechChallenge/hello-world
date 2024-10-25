@@ -56,7 +56,7 @@ class BasicChatbot:
   def start_conversation_loop(self):
     # Implementação do loop de conversa com o usuário.
     while True:
-      # Aqui usamos a funcao "input()" para obter a mwndagem do usuário 
+      # Aqui usamos a funcao "input()" para obter a mensagem do usuário 
       # Caso o mesmo digite "exit", o loop é encerrado e a conversa acaba. 
       # Caso contrário, o método "get_completion()" é continuamente chamado.
       user_input = input("Você: ")
@@ -71,3 +71,6 @@ class BasicChatbot:
   # Neste caso, ele serve apenas como um atalho para o método interno "get_completion()".
   def __call__(self, message):
     return self.get_completion(message)
+  
+chatbot = BasicChatbot(system_message="Você é um assistente que responde questões genéricas sobre o mundo.")
+chatbot.start_conversation_loop()
