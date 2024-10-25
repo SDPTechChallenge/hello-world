@@ -1,5 +1,5 @@
 import sqlite3 as sql
-from sqlite3 import Error
+from sqlite3 import Error, DatabaseError
 from argparse import ArgumentParser
 
 create_customer_table_query = '''
@@ -45,7 +45,7 @@ def insert_customers_into_table():
         count = cursor.execute(insert_customers_query).rowcount
         connection.commit()
         print(f'Successfully inserted {count} customers')
-    except sql.DatabaseError as error:
+    except DatabaseError as error:
         print('There was an error.\n' + repr(error))
     except:
         print("There was an error.")
@@ -55,7 +55,7 @@ def create_table():
         cursor.execute(create_customer_table_query)
         connection.commit()
         print("Table created successfully.")
-    except sql.DatabaseError as error:
+    except DatabaseError as error:
         print('There was an error.\n' + repr(error))
     except:
         print("There was an error.")
