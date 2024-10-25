@@ -35,7 +35,6 @@ args = parser.parse_args()
 
 connection = sql.connect('test.db')
 cursor = connection.cursor()
-cursor.execute('askakjskasjjaks').fetchall()
 
 if args.sql:
     results = connection.cursor().execute(args.sql).fetchall()
@@ -53,7 +52,7 @@ def insert_customers_into_table():
 
 def create_table():
     try:
-        connection.cursor().execute(create_customer_table_query)
+        cursor.execute(create_customer_table_query)
         connection.commit()
         print("Table created successfully.")
     except sql.DatabaseError as error:
