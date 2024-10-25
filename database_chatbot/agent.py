@@ -46,6 +46,7 @@ class Agent:
 instruction = open('sql_instructions.txt', 'r').read()
 
 db_agent = Agent(instruction)
+db_agent.start_conversation_loop()
 
 
 

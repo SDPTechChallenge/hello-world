@@ -35,6 +35,7 @@ args = parser.parse_args()
 
 connection = sql.connect('test.db')
 cursor = connection.cursor()
+cursor.execute('askakjskasjjaks').fetchall()
 
 if args.sql:
     results = connection.cursor().execute(args.sql).fetchall()
