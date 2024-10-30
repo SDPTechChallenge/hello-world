@@ -1,7 +1,6 @@
 from openai import OpenAI
 from dotenv import load_dotenv
 import os
-from sqlite3 import sql
 
 load_dotenv()
 '''
