@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 import os
 import sqlite3 as sql
 from sqlite3 import DatabaseError, Error
+import json
 
 load_dotenv()
 
@@ -44,6 +45,7 @@ class SQLChatbot:
         self.llm = OpenAI()
         self.db_path = db_path
         self.messages.append({"role": "system", "content": instruction})
+        print("Chatbot inicializado com sucesso.")
         if few_shot_list:
             for index, content in enumerate(few_shot_list):
                 role = "user" if index % 2 == 0 else "assistant"
@@ -63,26 +65,40 @@ class SQLChatbot:
             return f'Erro no banco de dados: {repr(error)}'
         finally:
             connection.close()
+            
+    def check_if_tool(self, message):
+        
+        # Verificar se é um comando SQL
+        tool_call_string = "SQL_TOOL_CALL:"
+        if message.upper().strip().startswith(tool_call_string):
+            sql_query = message[len(tool_call_string)].strip()
+            sql_result = self.execute_sql(sql_query)
+            response_text = f"Resultado da consulta SQL:\n{sql_result}"
+            return f'<ROWS>{response_text}</ROWS>'
+        else:
+            return None
 
     def call_llm(self, message):
         self.messages.append({"role": "user", "content": message})
+           
+        # Consulta ao modelo
+        response = self.llm.chat.completions.create(
+            model="gpt-4o-mini",
+            stream=False,
+            messages=self.messages
+        )
+        response_text = response.choices[0].message.content
+            
+        sql_response = self.check_if_tool(response_text)
         
-        # Verificar se é um comando SQL
-        if message.lower().startswith("sql:"):
-            sql_query = message[4:].strip()
-            sql_result = self.execute_sql(sql_query)
-            response_text = f"Resultado da consulta SQL:\n{sql_result}"
-        else:
-            # Consulta normal ao modelo
-            response = self.llm.chat.completions.create(
-                model="gpt-4o-mini",
-                stream=False,
-                messages=self.messages
-            )
-            response_text = response.choices[0].message.content
-
-        self.messages.append({"role": "assistant", "content": response_text})
-        return response_text
+        if(sql_response):
+            print("É SQL!")
+            response = self.call_llm(sql_response)
+            self.messages.append({"role" : "assistant", "content" : response})
+            return response
+        else:    
+            self.messages.append({"role" : "assistant", "content" : response})      
+            return response_text
 
     def start_conversation_loop(self):
         # Loop de conversa com o usuário
@@ -92,6 +108,7 @@ class SQLChatbot:
             user_input = input("Você: ")
             if user_input.lower() == "exit":
                 print("Encerrando a conversa. Até logo!")
+                open('conversation_log.json', 'w').write(json.dumps(self.messages))
                 break
             response = self.call_llm(user_input)
             print(f"Assistente: {response}")
