@@ -12,21 +12,25 @@ import sys
 import requests, base64
 import getpass
 import json
-from google.colab import userdata
+from dotenv import load_dotenv
 
-client = OpenAI(api_key = userdata.get('OPENAI_API_KEY'))
+load_dotenv()
+
+client = OpenAI()
 
 class MarcusChatbot:
 
-  def __init__(self):
-    nome_do_modelo='gpt-4o-mini'
+  def __init__(self, system_message=None, nome_do_modelo='gpt-4o-mini'):
+    # Nome do modelo é passado pelo usuário ao instanciar a classe
+    print('Chatbot instanciado com sucesso.')
+    self.messages = []
     self.nome_do_modelo = nome_do_modelo
-    system_message=None
-    client=None
+    self.system_message = system_message
     return None
 
   def call_llm(self, prompt):
-    self.prompt = prompt
+    self.messages.append({"role" : "user", "content" : prompt})
+    
     completion = client.chat.completions.create(
       model=self.nome_do_modelo,
       messages=[{"role":"user","content":prompt}],
@@ -36,6 +40,9 @@ class MarcusChatbot:
       stream=False
     )
     response = completion.choices[0].message.content
+    
+    self.messages.append({"role" : "assistant", "content" : response})
+    
     return response
 
   def save_messages_to_file(self, filename="messages_list.json"):
@@ -56,14 +63,13 @@ class MarcusChatbot:
   def save_messages(self, filename="conversation.json"):
     pass
 
-  def document_loading(self):
-    filepath = '/MachineLearning-Lecture01.pdf'
+  def document_loading(self, filepath):
     loader = PyPDFLoader(filepath)
     pages = loader.load()
     return pages
 
-  def question_answering(self, question):
-     docs = self.document_loading()
+  def question_answering(self, question, filepath='test_files/MachineLearning-Lecture01.pdf'):
+     docs = self.document_loading(filepath)
      llm = ChatOpenAI(model=self.nome_do_modelo)
      text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
      splits = text_splitter.split_documents(docs)
@@ -91,8 +97,8 @@ class MarcusChatbot:
      results = rag_chain.invoke({"input": question})
      return results
   
-bot = MarcusChatbot()
+bot = MarcusChatbot(nome_do_modelo="gpt-4o-mini")
 bot.question_answering("What's the number of the machine learning class?")
 
 chatbot = MarcusChatbot()
-chatbot.start_conversation_loop()
+chatbot.question_answering(input('Pergunte sobre o PDF:'))
