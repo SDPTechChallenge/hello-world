@@ -1,25 +1,40 @@
 from openai import OpenAI
 from dotenv import load_dotenv
+from tavily import TavilyClient
 import json
 import os 
 import re
 
 load_dotenv()
 
+load_dotenv()
+
+def create_client(vendor='openai') -> OpenAI:
+    if vendor == "openai":
+        client = OpenAI()
+        return client
+    else:
+        client = OpenAI(
+            base_url = "https://integrate.api.nvidia.com/v1",
+            api_key = os.getenv('NVIDIA_API_KEY')
+        )
+        return client
+        
+
 class BasicChatbotWithTool:
-  def __init__(self, model_name = "gpt-4o-mini", system_message=None):
+  def __init__(self, model_name = "gpt-4o-mini", system_message=None, llm_client=OpenAI(), fewshot_list=[]):
     self.model_name = model_name
     self.messages = []
-    self.llm_client = OpenAI()
-    
-    # Se nenhuma mensagem de sistema for passada para o construtor da classe,
-    # usamos o "primer" (instruções acima). Caso contrário, usamos a mensagem
-    # de sistema que foi passada para o construtor. Por padrão, ela é 'None',
-    # ou seja, usa-se o primer.
-    if system_message is None:
-      self.messages.append({"role" : "system", "content" : primer})
-    else:
+    self.llm_client = llm_client
+    self.tav_client = TavilyClient()
+
+    if system_message is not None:
       self.messages.append({"role" : "system", "content" : system_message})
+      
+    if fewshot_list:
+      for index, content in enumerate(fewshot_list):
+        role = "user" if index % 2 == 0 else "assistant"
+        self.messages.append({"role": role, "content": content})
 
   def get_completion(self, message):
     # A mensagem é sempre um dict contendo as chaves "role" e "content".
@@ -42,21 +57,36 @@ class BasicChatbotWithTool:
     response_text = response.choices[0].message.content
     self.messages.append({'role': 'assistant', 'content': response_text})
     
-    # Abaixo, verificamos se a resposta da LLM contém o padrão "calculate : <algum_calculo>".
-    calc_result = self.get_calculation(response_text)
+    tool_call_string = self.find_tool_call(response_text)
     
-    # Caso o padrão seja encontrado, "calc_result" conterá o resultado do cálculo, que será enviado à LLM.
-    if calc_result:
-      # Havendo resultado do cálculo, chamamos a LLM novamente com a resposta no 
-      # formato <ANSWER>Resultado</ANSWER>, conforme especificado na mensagem de sistema.
-      response_text = self.get_completion(f'<ANSWER>{calc_result}</ANSWER>')
-      
-    # Enfim, retornamos a string contendo a resposta da LLM.
-    return response_text
+    if tool_call_string:
+      search_results = self.perform_internet_search(tool_call_string)
+      results_string = f'<QUERY_RESULTS>{search_results}</QUERY_RESULTS>'
+      llm_response = self.get_completion(results_string)
+      return llm_response
+    else:
+      # Enfim, retornamos a string contendo a resposta da LLM.
+      return response_text
 
   def get_messages(self):
     return self.messages
-
+  
+  def find_tool_call(self, text):
+    pattern = r'NEWS_TOOL_CALL\s?:\s?(.*)'
+    match = re.match(pattern, text)
+    if match:
+      news_topic = match.groups()[0].strip()
+      return news_topic
+    else:
+      return None
+    
+  def perform_internet_search(self, query, topic = "news"):
+    tav_response = self.tav_client.search(query, topic=topic)
+    contents = [res['content'] for res in tav_response['results']]
+    separator = "\n----------\n"
+    joined_contents = separator.join(contents)
+    return joined_contents
+    
   def get_calculation(self, text):
     pattern = re.match(r'calculate\s?\:\s?(.*)', text)
     # Esta é uma expressão regular (RegEx). Usamos isto para encontrar texto que siga um determinado padrão em uma string.
@@ -76,8 +106,8 @@ class BasicChatbotWithTool:
       return None
 
   def save_messages_to_file(self, filename):
-      with open('chat_messages.json', 'w') as file:
-        json.dump(self.messages, file)
+      with open('chat_messages_2.json', 'w', encoding='utf-8') as file:
+        json.dump(self.messages, file, ensure_ascii=False, indent=4)
         
   def start_conversation_loop(self):
     # Implementação do loop de conversa com o usuário.
@@ -97,3 +127,15 @@ class BasicChatbotWithTool:
   # Neste caso, ele serve apenas como um atalho para o método interno "get_completion()".
   def __call__(self, message):
     return self.get_completion(message)
+  
+with open('chat_messages.json', 'r', encoding="utf-8") as file:
+  fewshot_list = json.load(file)
+  
+client = create_client('nvidia')
+bot = BasicChatbotWithTool(
+  system_message=open('./instructions.txt').read(), 
+  llm_client=client, 
+  model_name="meta/llama-3.2-3b-instruct",
+  )
+
+bot.start_conversation_loop()
