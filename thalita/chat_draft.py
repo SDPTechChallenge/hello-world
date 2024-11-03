@@ -72,8 +72,8 @@ class BasicChatbotWithTool:
     return self.messages
   
   def find_tool_call(self, text):
-    pattern = r'NEWS_TOOL_CALL\s?:\s?(.*)'
-    match = re.match(pattern, text)
+    pattern = r'NEWS_TOOL_CALL\s*:\s*(.*)'
+    match = re.match(pattern, text, re.MULTILINE)
     if match:
       news_topic = match.groups()[0].strip()
       return news_topic
@@ -86,24 +86,6 @@ class BasicChatbotWithTool:
     separator = "\n----------\n"
     joined_contents = separator.join(contents)
     return joined_contents
-    
-  def get_calculation(self, text):
-    pattern = re.match(r'calculate\s?\:\s?(.*)', text)
-    # Esta é uma expressão regular (RegEx). Usamos isto para encontrar texto que siga um determinado padrão em uma string.
-    # Neste caso, estamos procurando o padrão "calculate : <algum_calculo>" dentro da string.
-    
-    if pattern:
-      # Se o padrão for encontrado, 1) extraímos o cálculo da string e 2) o executamos usando a 
-      # função "eval", que avalia e executa expressões fornecidas como string como se fossem código.
-      # Exemplo: eval("2 + 2") retorna 4. A diferença é que o cálculo foi executado a partir de uma string, 
-      # o que torna a função "eval()" conveniente em nosso caso, visto que as respostas do modelo são strings.
-      calculation_pattern = pattern.groups()[0].strip()
-      calculation_answer = eval(calculation_pattern)
-      return calculation_answer
-    else:
-      # Caso o padrão não seja encontrado, ou seja, a mensagem não contém um pedido de cálculo,
-      # retornamos 'None'.
-      return None
 
   def save_messages_to_file(self, filename):
       with open('chat_messages_2.json', 'w', encoding='utf-8') as file:
@@ -135,7 +117,7 @@ client = create_client('nvidia')
 bot = BasicChatbotWithTool(
   system_message=open('./instructions.txt').read(), 
   llm_client=client, 
-  model_name="meta/llama-3.2-3b-instruct",
+  model_name="meta/llama-3.1-70b-instruct",
   )
 
 bot.start_conversation_loop()
