@@ -1,42 +1,16 @@
 from openai import OpenAI
 from dotenv import load_dotenv
-import os
-import sqlite3 as sql
 from sqlite3 import DatabaseError, Error
+import os
+import re
+import sqlite3 as sql
 import json
 
 load_dotenv()
 
-openai_client = OpenAI(api_key=os.environ['OPENAI_API_KEY'])
+openai_client = OpenAI()
 
 DB_PATH = 'SQLChatbot.db'
-
-# Definir queries para criação e inserção na tabela
-create_customer_table_query = '''
-CREATE TABLE IF NOT EXISTS customers (
-    customer_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    last_name TEXT NOT NULL,
-    first_name TEXT NOT NULL,
-    birthdate DATE,
-    city TEXT,
-    country TEXT
-);
-'''.strip()
-
-insert_customers_query = '''
-INSERT INTO customers (last_name, first_name, birthdate, city, country)
-VALUES
-('Evans', 'Sarah', '1982-03-12', 'London', 'UK'),
-('Brown', 'David', '1987-08-21', 'Manchester', 'UK'),
-('Miller', 'Emily', '1992-11-30', 'Birmingham', 'UK'),
-('Wilson', 'James', '1975-05-10', 'Liverpool', 'UK'),
-('Taylor', 'Laura', '1990-06-25', 'Edinburgh', 'UK'),
-('Silva', 'Ana', '1983-04-14', 'São Paulo', 'Brazil'),
-('Costa', 'Bruno', '1995-07-22', 'Rio de Janeiro', 'Brazil'),
-('Oliveira', 'Carla', '1988-09-16', 'Brasília', 'Brazil'),
-('Souza', 'Felipe', '1991-10-08', 'Curitiba', 'Brazil'),
-('Pereira', 'Mariana', '1993-12-03', 'Belo Horizonte', 'Brazil');
-'''.strip()
 
 # Classe SQLChatbot
 class SQLChatbot:
@@ -45,6 +19,8 @@ class SQLChatbot:
         self.llm = OpenAI()
         self.db_path = db_path
         self.messages.append({"role": "system", "content": instruction})
+        self.retry_count = 0
+        self.debug = False
         print("Chatbot inicializado com sucesso.")
         if few_shot_list:
             for index, content in enumerate(few_shot_list):
@@ -52,29 +28,32 @@ class SQLChatbot:
                 self.messages.append({"role": role, "content": content})
 
     def execute_sql(self, sql_query):
+
         #Executa uma consulta SQL no banco de dados SQLite
         try:
+            if self.debug: print(f'[Executing query: {sql_query}]')
             connection = sql.connect(self.db_path)
             cursor = connection.cursor()
-            cursor.execute(create_customer_table_query)  # Cria tabela se não existir
-            cursor.execute(insert_customers_query)  # Insere dados na tabela
+            # cursor.execute(create_customer_table_query)  # Cria tabela se não existir
+            # cursor.execute(insert_customers_query)  # Insere dados na tabela
             results = cursor.execute(sql_query).fetchall()
+            if self.debug: print(f'[Obtained results: {str(results)}]')
             connection.commit()
             return results
         except DatabaseError as error:
-            return f'Erro no banco de dados: {repr(error)}'
+            self.retry_count += 1
+            if self.retry_count > 2:
+                return "Maximum number of tries exceeded. Do not retry."
+            return f'Database error: {repr(error)}.' + '\n' + 'Please retry. Check for syntax errors. Do not use quotes around the SQL query.'
         finally:
             connection.close()
             
-    def check_if_tool(self, message):
-        
-        # Verificar se é um comando SQL
-        tool_call_string = "SQL_TOOL_CALL:"
-        if message.upper().strip().startswith(tool_call_string):
-            sql_query = message[len(tool_call_string)].strip()
-            sql_result = self.execute_sql(sql_query)
-            response_text = f"Resultado da consulta SQL:\n{sql_result}"
-            return f'<ROWS>{response_text}</ROWS>'
+    def check_if_tool(self, message : str):
+        pattern = r'SQL_TOOL_CALL\s*:\s*(.*)'
+        match = re.match(pattern, message, re.MULTILINE)
+        if match:
+            sql_command = match.groups()[0]
+            return sql_command
         else:
             return None
 
@@ -87,17 +66,18 @@ class SQLChatbot:
             stream=False,
             messages=self.messages
         )
-        response_text = response.choices[0].message.content
-            
-        sql_response = self.check_if_tool(response_text)
         
-        if(sql_response):
-            print("É SQL!")
-            response = self.call_llm(sql_response)
-            self.messages.append({"role" : "assistant", "content" : response})
+        response_text = response.choices[0].message.content
+        self.messages.append({"role" : "assistant", "content" : response_text})      
+            
+        sql_command = self.check_if_tool(response_text)
+        
+        if(sql_command):
+            if self.debug: print("[SQL tool call]")
+            results = self.execute_sql(sql_command)
+            response = self.call_llm(f'Results:\n{str(results)}')
             return response
         else:    
-            self.messages.append({"role" : "assistant", "content" : response})      
             return response_text
 
     def start_conversation_loop(self):
@@ -106,6 +86,7 @@ class SQLChatbot:
         # Caso o usuário digite "exit", o loop é encerrado e a conversa acaba
         # Se não for digitado "exit" o método "get_completion()" é continuamente chamado
             user_input = input("Você: ")
+            if user_input == 'DEBUG': self.debug = True
             if user_input.lower() == "exit":
                 print("Encerrando a conversa. Até logo!")
                 open('conversation_log.json', 'w').write(json.dumps(self.messages))
