@@ -8,6 +8,8 @@ import json
 
 load_dotenv()
 
+# Llama 3.2 3B
+# Llama 3.1 70B
 openai_client = OpenAI()
 
 DB_PATH = 'SQLChatbot.db'

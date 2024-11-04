@@ -1,1 +1,52 @@
-[{"role": "system", "content": "You are a data scientist who specialzies in writing SQLite queries. When asked to perform a database search, you must call an external SQL query tool containing the appropriate SQLite query. To call the tool, use the following output template:\n\nSQL_TOOL_CALL: <sql_query>\n\nReplace <sql_query> with a correct, properly formatted SQLite query, using the following table schemas as basis:\n\nTable: customers\nColumns: id, first_name, last_name, birthdate, street_address, city, state, country\n\nTable: products\nColumns: id, description, price, discount_price\n\n## Example conversation\n\nUser: Hello!\nAssistant: Hello! How can I help you today?\nUser: What is the capital of Russia?\nAssistant: The capital of Russia is Moscow.\nUser: Awesome!\nAssistant: I'm glad I could help! Is there anything else you need assistance with?\nUser: What table does the database have?\nAssistant: The database contains two tables: customers and products.\nUser: Got it! Please fetch the customers whose last names are \"Smith\"\nAssistant: SQL_TOOL_CALL: SELECT * FROM customers WHERE last_name = 'Smith'\nUser: Result(s): [(1, 'Doe', 'John', '1985-07-23', 'New York', 'USA'), (2, 'Smith', 'Jane', '1990-02-14', 'London', 'UK'), (3, 'Garcia', 'Carlos', '1978-11-05', 'Madrid', 'Spain'), (4, 'Tanaka', 'Yuki', '1995-04-18', 'Tokyo', 'Japan'), (5, 'Dubois', 'Marie', '1983-09-30', 'Paris', 'France'), (6, 'Evans', 'Sarah', '1982-03-12', 'London', 'UK')]\nAssistant: Here are the obtained results: (List the returned rows in a table format)\nUser: Thanks!\n\n## Important notes:\n\n1) Remember to use the following syntax to perform an SQL tool call: `SQL_TOOL_CALL: <sql_query>`\n2) When calling the tool, do not write any additional text or commentary.\n3) Upon calling a tool, the user will provide a list of results. These will be a list of a tuples. E.g. [('Smith', 'John', 44, 'US')]\n4) Based on the provided list, you will present the information in a suitable fashion (e.g. using a table for lists of tuples, or using natural language if the returned result is shorter, such as the result of an aggregate function, a single number etc.)\n5) For all other, non-database-related user questions, respond normally, without calling the tool.\n6) Do not use quotes (\"\") around the SQL query. \n"}, {"role": "user", "content": "Hi, I need data of the customer with first name \"Felipe\" and last name \"Souza\""}, {"role": "assistant", "content": "SQL_TOOL_CALL: SELECT * FROM customers WHERE first_name = 'Felipe' AND last_name = 'Souza'"}, {"role": "user", "content": "Results:\n[(9, 'Souza', 'Felipe', '1991-10-08', 'Curitiba', 'Brazil'), (19, 'Souza', 'Felipe', '1991-10-08', 'Curitiba', 'Brazil')]"}, {"role": "assistant", "content": "Here are the obtained results:\n\n| id | last_name | first_name | birthdate   | street_address | city      | state  | country |\n|----|-----------|------------|-------------|----------------|-----------|--------|---------|\n| 9  | Souza     | Felipe     | 1991-10-08  | Curitiba       | Brazil    |        |         |\n| 19 | Souza     | Felipe     | 1991-10-08  | Curitiba       | Brazil    |        |         |"}, {"role": "user", "content": "How many customers do we have who were born in Brazil?"}, {"role": "assistant", "content": "SQL_TOOL_CALL: SELECT COUNT(*) FROM customers WHERE country = 'Brazil'"}, {"role": "user", "content": "Results:\n[(10,)]"}, {"role": "assistant", "content": "The total number of customers born in Brazil is 10."}, {"role": "user", "content": "DEBUG"}, {"role": "assistant", "content": "I'm here to assist you! How can I help you today?"}, {"role": "user", "content": "What is the average age of our customers living in Manchester?"}, {"role": "assistant", "content": "SQL_TOOL_CALL: SELECT AVG((julianday('now') - julianday(birthdate)) / 365.25) AS average_age FROM customers WHERE city = 'Manchester'"}, {"role": "user", "content": "Results:\n[(37.209124782683,)]"}, {"role": "assistant", "content": "The average age of customers living in Manchester is approximately 37.21 years."}]
+[
+  {
+    "role": "system",
+    "content": "You are a data scientist who specialzies in writing SQLite queries. When asked to perform a database search, you must call an external SQL query tool containing the appropriate SQLite query. To call the tool, use the following output template:\n\nSQL_TOOL_CALL: <sql_query>\n\nReplace <sql_query> with a correct, properly formatted SQLite query, using the following table schemas as basis:\n\nTable: customers\nColumns: id, first_name, last_name, birthdate, street_address, city, state, country\n\nTable: products\nColumns: id, description, price, discount_price\n\n## Example conversation\n\nUser: Hello!\nAssistant: Hello! How can I help you today?\nUser: What is the capital of Russia?\nAssistant: The capital of Russia is Moscow.\nUser: Awesome!\nAssistant: I'm glad I could help! Is there anything else you need assistance with?\nUser: What table does the database have?\nAssistant: The database contains two tables: customers and products.\nUser: Got it! Please fetch the customers whose last names are \"Smith\"\nAssistant: SQL_TOOL_CALL: SELECT * FROM customers WHERE last_name = 'Smith'\nUser: Result(s): [(1, 'Doe', 'John', '1985-07-23', 'New York', 'USA'), (2, 'Smith', 'Jane', '1990-02-14', 'London', 'UK'), (3, 'Garcia', 'Carlos', '1978-11-05', 'Madrid', 'Spain'), (4, 'Tanaka', 'Yuki', '1995-04-18', 'Tokyo', 'Japan'), (5, 'Dubois', 'Marie', '1983-09-30', 'Paris', 'France'), (6, 'Evans', 'Sarah', '1982-03-12', 'London', 'UK')]\nAssistant: Here are the obtained results: (List the returned rows in a table format)\nUser: Thanks!\n\n## Important notes:\n\n1) Remember to use the following syntax to perform an SQL tool call: `SQL_TOOL_CALL: <sql_query>`\n2) When calling the tool, do not write any additional text or commentary.\n3) Upon calling a tool, the user will provide a list of results. These will be a list of a tuples. E.g. [('Smith', 'John', 44, 'US')]\n4) Based on the provided list, you will present the information in a suitable fashion (e.g. using a table for lists of tuples, or using natural language if the returned result is shorter, such as the result of an aggregate function, a single number etc.)\n5) For all other, non-database-related user questions, respond normally, without calling the tool.\n6) Do not use quotes (\"\") around the SQL query. \n"
+  },
+  { "role": "user", "content": "Hello!" },
+  { "role": "assistant", "content": "Hello! How can I help you today?" },
+  { "role": "user", "content": "DEBUG" },
+  {
+    "role": "assistant",
+    "content": "I'm here to assist you with database queries or any other questions you may have! How can I help?"
+  },
+  {
+    "role": "user",
+    "content": "I need to know how many customers we have who live in the UK."
+  },
+  {
+    "role": "assistant",
+    "content": "SQL_TOOL_CALL: SELECT COUNT(*) FROM customers WHERE country = 'UK'"
+  },
+  { "role": "user", "content": "Results:\n[(10,)]" },
+  {
+    "role": "assistant",
+    "content": "The total number of customers living in the UK is 10."
+  },
+  {
+    "role": "user",
+    "content": "I need a list of customers who live in the UK and were born after December 8, 1970"
+  },
+  {
+    "role": "assistant",
+    "content": "SQL_TOOL_CALL: SELECT * FROM customers WHERE country = 'UK' AND birthdate > '1970-12-08'"
+  },
+  {
+    "role": "user",
+    "content": "Results:\n[(1, 'Evans', 'Sarah', '1982-03-12', 'London', 'UK'), (2, 'Brown', 'David', '1987-08-21', 'Manchester', 'UK'), (3, 'Miller', 'Emily', '1992-11-30', 'Birmingham', 'UK'), (4, 'Wilson', 'James', '1975-05-10', 'Liverpool', 'UK'), (5, 'Taylor', 'Laura', '1990-06-25', 'Edinburgh', 'UK'), (11, 'Evans', 'Sarah', '1982-03-12', 'London', 'UK'), (12, 'Brown', 'David', '1987-08-21', 'Manchester', 'UK'), (13, 'Miller', 'Emily', '1992-11-30', 'Birmingham', 'UK'), (14, 'Wilson', 'James', '1975-05-10', 'Liverpool', 'UK'), (15, 'Taylor', 'Laura', '1990-06-25', 'Edinburgh', 'UK')]"
+  },
+  {
+    "role": "assistant",
+    "content": "Here are the customers who live in the UK and were born after December 8, 1970:\n\n| id | first_name | last_name | birthdate   | street_address | city        | state | country |\n|----|------------|-----------|-------------|----------------|-------------|-------|---------|\n| 1  | Sarah      | Evans     | 1982-03-12  | London         | London      | UK    |\n| 2  | David      | Brown     | 1987-08-21  | Manchester     | Manchester  | UK    |\n| 3  | Emily      | Miller    | 1992-11-30  | Birmingham     | Birmingham  | UK    |\n| 4  | James      | Wilson    | 1975-05-10  | Liverpool      | Liverpool   | UK    |\n| 5  | Laura      | Taylor    | 1990-06-25  | Edinburgh      | Edinburgh   | UK    |\n| 11 | Sarah      | Evans     | 1982-03-12  | London         | London      | UK    |\n| 12 | David      | Brown     | 1987-08-21  | Manchester     | Manchester  | UK    |\n| 13 | Emily      | Miller    | 1992-11-30  | Birmingham     | Birmingham  | UK    |\n| 14 | James      | Wilson    | 1975-05-10  | Liverpool      | Liverpool   | UK    |\n| 15 | Laura      | Taylor    | 1990-06-25  | Edinburgh      | Edinburgh   | UK    |\n\n(Note: The table includes some duplicate entries.)"
+  },
+  { "role": "user", "content": "Thanks" },
+  {
+    "role": "assistant",
+    "content": "You're welcome! If you have any more questions or need further assistance, feel free to ask!"
+  },
+  { "role": "user", "content": "quit" },
+  {
+    "role": "assistant",
+    "content": "Have a great day! If you need assistance in the future, don't hesitate to reach out."
+  }
+]

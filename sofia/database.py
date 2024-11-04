@@ -2,7 +2,7 @@ import sqlite3 as sql
 import pandas as pd
 
 # File names
-customers_file = 'data/Mall_Customers.csv'
+customers_files = [{"filepath" : "Mall_Customers.csv", "table" : "mall_customers"}]
 
 database = 'SQLChatbot.db'
 
@@ -17,11 +17,11 @@ def run_pipeline():
     conn = sql.connect(database)
     
     try:
-        # Load CSV files
-        customers_df = pd.read_csv(customers_file)
-        
-        # Load data into SQLite tables
-        load_to_sqlite(customers_df, 'mall_customers', conn)
+        for file in customers_files:
+            # Load CSV files
+            df = pd.read_csv(f'data/{file['filepath']}')        
+            # Load data into SQLite tables
+            load_to_sqlite(df, file['table'], conn)
         
         print("Data pipeline completed successfully.")
     except Exception as e:
