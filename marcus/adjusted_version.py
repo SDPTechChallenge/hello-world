@@ -1,5 +1,5 @@
 from openai import OpenAI
-from langchain_community.document_loaders import PyMuPDFLoader
+from langchain_community.document_loaders import PyMuPDFLoader as PDFLoader
 from langchain_openai import ChatOpenAI
 from langchain_core.vectorstores import InMemoryVectorStore
 from langchain_openai import OpenAIEmbeddings
@@ -50,30 +50,14 @@ class MarcusChatbot:
         message_list_string = json.dumps(self.messages)
         open("message_list.json", "w").write(message_list_string)
 
-    def start_conversation_loop(self):
-        while True:
-            user_message = input("Você: ")
-            if user_message.lower() == "quit":
-                break
-
-            # Check if the question is about the document
-            if self.is_question_about_document(user_message):
-                if not self.document_loaded:
-                    # Load the document once
-                    self.load_document(filepath='test_files/paper.pdf')
-                llm_response = self.submit_question(user_message)
-                print(f"Chatbot: {llm_response['answer']}")
-            else:
-                llm_response = self.call_llm(user_message)
-                print(f"Chatbot: {llm_response}")
-
     def save_messages(self, filename="conversation.json"):
         pass
 
     def load_document(self, filepath):
-        loader = PyMuPDFLoader(filepath)
+        loader = PDFLoader(filepath)
         self.docs = loader.load()
         self.document_loaded = True  # Update the flag
+        print('[Document loaded]')
         # Prepare the RAG chain
         self.prepare_rag_chain()
 
@@ -81,6 +65,7 @@ class MarcusChatbot:
         llm = ChatOpenAI(model=self.model_name)
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=2000, chunk_overlap=400)
         splits = text_splitter.split_documents(self.docs)
+        print(f'[Splitting finished with {len(splits)} splits]')
         vectorstore = InMemoryVectorStore.from_documents(
             documents=splits, embedding=OpenAIEmbeddings()
         )
@@ -91,6 +76,7 @@ class MarcusChatbot:
             "Use the following pieces of retrieved context to answer the question."
             "If you don't know the answer, say that you don't know."
             "Use three sentences maximum and keep the answer concise."
+            "Answer in Portuguese if the user speaks in that language. Translate as necessary."
             "\n\n"
             "Context:\n"
             "{context}"
@@ -107,12 +93,12 @@ class MarcusChatbot:
         self.rag_chain = create_retrieval_chain(retriever, question_answer_chain)
 
     def submit_question(self, question):
-        result = self.rag_chain.invoke({"input": question})
-        return results
+        result = self.rag_chain.stream({"input": question})
+        return result
 
     def is_question_about_document(self, question):
         prompt = f"""
-        Determine whether the following is a general question that can be answered without context or a specific question that is likely based on a source or document the user has read or seen.
+        Determine whether the following is a general question that can be answered without context or a specific question that is likely based on a source or document the user has read or seen and is inquiring about.
         If it is likely a generic question, simply say "Generic". If it is likely context-specific, simply say "Specific".
 
         Question: "{question}"
@@ -125,7 +111,28 @@ class MarcusChatbot:
             stream=False
         )
         response = completion.choices[0].message.content.strip().upper()
-        return 'SPECIFIC' in response
+        return ('SPECIFIC' in response)
+    
+    def start_conversation_loop(self):
+        while True:
+            user_message = input("Você: ")
+            if user_message.lower() == "quit":
+                break
+
+            # Check if the question is about the document
+            if self.is_question_about_document(user_message):
+                if not self.document_loaded:
+                    # Load the document once
+                    self.load_document(filepath='test_files/Attention Is All You Need.pdf')
+                llm_response = self.submit_question(user_message)
+                print('[SPECIFIC] ', end="", flush=True)
+                for chunk in llm_response:
+                    if chunk and 'answer' in chunk:
+                        print(chunk['answer'], end="", flush=True)
+                print()
+            else:
+                llm_response = self.call_llm(user_message)
+                print(f"Chatbot: [GENERIC] {llm_response}")
 
 # Instantiate the chatbot
 chatbot = MarcusChatbot()
