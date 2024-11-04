@@ -1,35 +1,34 @@
 import sqlite3 as sql
 
-connection = sql.connect('SQLChatbot.db')
-cursor = connection.cursor()
+# File names
+customers_file = 'customers.csv'
+orders_file = 'orders.csv'
+database = 'data_pipeline.db'
 
-results = cursor.execute("SELECT SUM(strftime('%Y', 'now') - strftime('%Y', birthdate)) FROM customers WHERE country = 'UK'").fetchall()
-print(str(results))
+# Implement function that reads table columns and adds the table schema to the system message 
 
-# Definir queries para criação e inserção na tabela
-create_customer_table_query = '''
-CREATE TABLE IF NOT EXISTS customers (
-    customer_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    last_name TEXT NOT NULL,
-    first_name TEXT NOT NULL,
-    birthdate DATE,
-    city TEXT,
-    country TEXT
-);
-'''.strip()
+def load_to_sqlite(df, table_name, conn):
+    df.to_sql(table_name, conn, if_exists='replace', index=False, chunksize=500)
+    print(f"{table_name} table created successfully.")
 
-insert_customers_query = '''
-INSERT INTO customers (last_name, first_name, birthdate, city, country)
-VALUES
-('Evans', 'Sarah', '1982-03-12', 'London', 'UK'),
-('Brown', 'David', '1987-08-21', 'Manchester', 'UK'),
-('Miller', 'Emily', '1992-11-30', 'Birmingham', 'UK'),
-('Wilson', 'James', '1975-05-10', 'Liverpool', 'UK'),
-('Taylor', 'Laura', '1990-06-25', 'Edinburgh', 'UK'),
-('Silva', 'Ana', '1983-04-14', 'São Paulo', 'Brazil'),
-('Costa', 'Bruno', '1995-07-22', 'Rio de Janeiro', 'Brazil'),
-('Oliveira', 'Carla', '1988-09-16', 'Brasília', 'Brazil'),
-('Souza', 'Felipe', '1991-10-08', 'Curitiba', 'Brazil'),
-('Pereira', 'Mariana', '1993-12-03', 'Belo Horizonte', 'Brazil');
-'''.strip()
+def run_pipeline():
+    # Connect to the database
+    conn = sqlite3.connect(database)
+    
+    try:
+        # Load CSV files
+        customers_df = pd.read_csv(customers_file)
+        orders_df = pd.read_csv(orders_file)
+        
+        # Load data into SQLite tables
+        load_to_sqlite(customers_df, 'customers', conn)
+        load_to_sqlite(orders_df, 'orders', conn)
+        
+        print("Data pipeline completed successfully.")
+    except Exception as e:
+        print("Error:", e)
+    finally:
+        conn.close()
 
+# Run the pipeline
+run_pipeline()
