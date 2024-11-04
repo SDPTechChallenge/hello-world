@@ -7,12 +7,12 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain.chains import create_retrieval_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.prompts import ChatPromptTemplate
+from dotenv import load_dotenv
 import os
 import sys
-import requests, base64
-import getpass
+import requests
+import base64
 import json
-from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -20,11 +20,11 @@ client = OpenAI()
 
 class MarcusChatbot:
 
-  def __init__(self, system_message=None, nome_do_modelo='gpt-4o-mini'):
+  def __init__(self, system_message=None, model_name='gpt-4o-mini'):
     # Nome do modelo é passado pelo usuário ao instanciar a classe
     print('Chatbot instanciado com sucesso.')
     self.messages = []
-    self.nome_do_modelo = nome_do_modelo
+    self.model_name = model_name
     self.system_message = system_message
     return None
 
@@ -32,7 +32,7 @@ class MarcusChatbot:
     self.messages.append({"role" : "user", "content" : prompt})
     
     completion = client.chat.completions.create(
-      model=self.nome_do_modelo,
+      model=self.model_name,
       messages=[{"role":"user","content":prompt}],
       temperature=0.2,
       top_p=0.7,
@@ -55,30 +55,29 @@ class MarcusChatbot:
       if user_message.lower() == "quit":
         break
 
-
       llm_response = self.call_llm(user_message)
       print(f"Chatbot: {llm_response}")
-
 
   def save_messages(self, filename="conversation.json"):
     pass
 
-  def document_loading(self, filepath):
+  def load_document(self, filepath):
     loader = PyPDFLoader(filepath)
     pages = loader.load()
     return pages
 
-  def question_answering(self, question, filepath='test_files/MachineLearning-Lecture01.pdf'):
-     docs = self.document_loading(filepath)
-     llm = ChatOpenAI(model=self.nome_do_modelo)
+  def submit_question(self, question, filepath='test_files/MachineLearning-Lecture01.pdf'):
+     docs = self.load_document(filepath)
+     llm = ChatOpenAI(model=self.model_name)
      text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
      splits = text_splitter.split_documents(docs)
      vectorstore = InMemoryVectorStore.from_documents(
         documents=splits, embedding=OpenAIEmbeddings()
         )
      retriever = vectorstore.as_retriever()
+     
      system_prompt = (
-        "You are an assistant for question-answering tasks. "
+        "You are an assistant for question-answering tasks."
         "Use the following pieces of retrieved context to answer "
         "the question. If you don't know the answer, say that you "
         "don't know. Use three sentences maximum and keep the "
@@ -86,19 +85,23 @@ class MarcusChatbot:
         "\n\n"
         "{context}"
         )
+     
      prompt = ChatPromptTemplate.from_messages(
         [
            ("system", system_prompt),
            ("human", "{input}"),
            ]
            )
+     
      question_answer_chain = create_stuff_documents_chain(llm, prompt)
      rag_chain = create_retrieval_chain(retriever, question_answer_chain)
-     results = rag_chain.invoke({"input": question})
-     return results
+     result = rag_chain.invoke({"input": question})
+     return result
   
-bot = MarcusChatbot(nome_do_modelo="gpt-4o-mini")
-bot.question_answering("What's the number of the machine learning class?")
+# bot = MarcusChatbot(model_name="gpt-4o-mini")
+# response = bot.submit_question("What's the number of the machine learning class?")
+# print(response['answer'])
 
 chatbot = MarcusChatbot()
-chatbot.question_answering(input('Pergunte sobre o PDF:'))
+response = chatbot.submit_question(input('Pergunte sobre o PDF:'))
+print(response['answer'])
