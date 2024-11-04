@@ -29,24 +29,26 @@ class SQLChatbot:
                 role = "user" if index % 2 == 0 else "assistant"
                 self.messages.append({"role": role, "content": content})
 
-    def execute_sql(self, sql_query):
+    def execute_sql(self, sql_command):
 
         #Executa uma consulta SQL no banco de dados SQLite
         try:
-            if self.debug: print(f'[Executing query: {sql_query}]')
+            if self.debug: print(f'[Executing query: {sql_command}]')
             connection = sql.connect(self.db_path)
             cursor = connection.cursor()
             # cursor.execute(create_customer_table_query)  # Cria tabela se não existir
             # cursor.execute(insert_customers_query)  # Insere dados na tabela
-            results = cursor.execute(sql_query).fetchall()
+            results = cursor.execute(sql_command).fetchall()
             if self.debug: print(f'[Obtained results: {str(results)}]')
             connection.commit()
             return results
         except DatabaseError as error:
             self.retry_count += 1
             if self.retry_count > 2:
+                self.retry_count = 0 # Resetting the count
                 return "Maximum number of tries exceeded. Do not retry."
-            return f'Database error: {repr(error)}.' + '\n' + 'Please retry. Check for syntax errors. Do not use quotes around the SQL query.'
+            else:
+                return f'Database error. Please retry. Check for syntax errors. Do not use quotes around the SQL query.'
         finally:
             connection.close()
             
