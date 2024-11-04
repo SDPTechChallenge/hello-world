@@ -1,5 +1,5 @@
 from openai import OpenAI
-from langchain_community.document_loaders import PyPDFLoader
+from langchain_community.document_loaders import PyMuPDFLoader
 from langchain_openai import ChatOpenAI
 from langchain_core.vectorstores import InMemoryVectorStore
 from langchain_openai import OpenAIEmbeddings
@@ -28,7 +28,6 @@ class MarcusChatbot:
         self.document_loaded = False  # Flag to check if document is loaded
         self.docs = None
         self.rag_chain = None  # Store the RAG chain for reuse
-        return None
 
     def call_llm(self, prompt):
         self.messages.append({"role": "user", "content": prompt})
@@ -61,7 +60,7 @@ class MarcusChatbot:
             if self.is_question_about_document(user_message):
                 if not self.document_loaded:
                     # Load the document once
-                    self.load_document(filepath='test_files/The Unreasonable Effectiveness of Eccentric Automatic Prompts.pdf')
+                    self.load_document(filepath='test_files/paper.pdf')
                 llm_response = self.submit_question(user_message)
                 print(f"Chatbot: {llm_response['answer']}")
             else:
@@ -72,7 +71,7 @@ class MarcusChatbot:
         pass
 
     def load_document(self, filepath):
-        loader = PyPDFLoader(filepath)
+        loader = PyMuPDFLoader(filepath)
         self.docs = loader.load()
         self.document_loaded = True  # Update the flag
         # Prepare the RAG chain
@@ -80,7 +79,7 @@ class MarcusChatbot:
 
     def prepare_rag_chain(self):
         llm = ChatOpenAI(model=self.model_name)
-        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+        text_splitter = RecursiveCharacterTextSplitter(chunk_size=2000, chunk_overlap=400)
         splits = text_splitter.split_documents(self.docs)
         vectorstore = InMemoryVectorStore.from_documents(
             documents=splits, embedding=OpenAIEmbeddings()
@@ -109,26 +108,24 @@ class MarcusChatbot:
 
     def submit_question(self, question):
         result = self.rag_chain.invoke({"input": question})
-        return result
+        return results
 
     def is_question_about_document(self, question):
-        # prompt = f"""
-        # Determine whether the following question is about the uploaded document.
-        # Respond with a single word: 'Yes' or 'No'.
+        prompt = f"""
+        Determine whether the following is a general question that can be answered without context or a specific question that is likely based on a source or document the user has read or seen.
+        If it is likely a generic question, simply say "Generic". If it is likely context-specific, simply say "Specific".
 
-        # Question: "{question}"
-        # """
-        # completion = client.chat.completions.create(
-        #     model=self.model_name,
-        #     messages=[{"role": "user", "content": prompt}],
-        #     temperature=0,
-        #     max_tokens=3,
-        #     stream=False
-        # )
-        # response = completion.choices[0].message.content.strip().upper()
-        # return 'YES' in response
-        question = question.lower()
-        return "document" in question
+        Question: "{question}"
+        """
+        completion = client.chat.completions.create(
+            model=self.model_name,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0,
+            max_tokens=3,
+            stream=False
+        )
+        response = completion.choices[0].message.content.strip().upper()
+        return 'SPECIFIC' in response
 
 # Instantiate the chatbot
 chatbot = MarcusChatbot()
