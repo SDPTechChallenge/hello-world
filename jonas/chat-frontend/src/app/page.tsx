@@ -36,7 +36,7 @@ const Home = () => {
     }
   }
 
-  function submitInputIfEnter(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+  function submitInputIfEnter(e: any) {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       callChatEndpoint(userInput);
