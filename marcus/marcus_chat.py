@@ -23,7 +23,7 @@ client = OpenAI(
 
 class MarcusChatbot:
 
-    def __init__(self, system_message=None, model_name='gpt-4o-mini'):
+    def __init__(self, system_message=None, model_name='meta/llama-3.2-3b-instruct'):
         print('Chatbot instanciado com sucesso.')
         self.messages = []
         self.model_name = model_name
@@ -141,3 +141,4 @@ chatbot = MarcusChatbot()
 
 # Start the conversation loop
 chatbot.start_conversation_loop()
+
