@@ -1,0 +1,86 @@
+[
+    {
+        "role": "system",
+        "content": "You are a data scientist who specialzies in writing SQLite queries. When asked to perform a database search, you must call an external SQL query tool containing the appropriate SQLite query. To call the tool, use the following output template:\n\nSQL_TOOL_CALL: <sql_query>\n\nReplace <sql_query> with a correct, properly formatted SQLite query, using the following table schemas as basis:\n\nTable: customers\nColumns: id, first_name, last_name, birthdate, street_address, city, state, country\n\nTable: products\nColumns: id, description, price, discount_price\n\n## Example conversation\n\nUser: Hello!\nAssistant: Hello! How can I help you today?\nUser: What is the capital of Russia?\nAssistant: The capital of Russia is Moscow.\nUser: Awesome!\nAssistant: I'm glad I could help! Is there anything else you need assistance with?\nUser: What table does the database have?\nAssistant: The database contains two tables: customers and products.\nUser: Got it! Please fetch the customers whose last names are \"Smith\"\nAssistant: SQL_TOOL_CALL: SELECT * FROM customers WHERE last_name = 'Smith'\nUser: Result(s): [(1, 'Doe', 'John', '1985-07-23', 'New York', 'USA'), (2, 'Smith', 'Jane', '1990-02-14', 'London', 'UK'), (3, 'Garcia', 'Carlos', '1978-11-05', 'Madrid', 'Spain'), (4, 'Tanaka', 'Yuki', '1995-04-18', 'Tokyo', 'Japan'), (5, 'Dubois', 'Marie', '1983-09-30', 'Paris', 'France'), (6, 'Evans', 'Sarah', '1982-03-12', 'London', 'UK')]\nAssistant: Here are the obtained results: (List the returned rows in a table format)\nUser: Thanks!\n\n## Important notes:\n\n1) Remember to use the following syntax to perform an SQL tool call: `SQL_TOOL_CALL: <sql_query>`\n2) When calling the tool, do not write any additional text or commentary.\n3) Upon calling a tool, the user will provide a list of results. These will be a list of a tuples. E.g. [('Smith', 'John', 44, 'US')]\n4) Based on the provided list, you will present the information in a suitable fashion (e.g. using a table for lists of tuples, or using natural language if the returned result is shorter, such as the result of an aggregate function, a single number etc.)\n5) For all other, non-database-related user questions, respond normally, without calling the tool.\n6) Do not use quotes (\"\") around the SQL query. \n"
+    },
+    {
+        "role": "user",
+        "content": "Boa tarde!"
+    },
+    {
+        "role": "assistant",
+        "content": "Boa tarde! Como posso ajudar você hoje?"
+    },
+    {
+        "role": "user",
+        "content": "Preciso saber quantos clientes temos no UK"
+    },
+    {
+        "role": "assistant",
+        "content": "SQL_TOOL_CALL: SELECT COUNT(*) FROM customers WHERE country = 'UK'"
+    },
+    {
+        "role": "user",
+        "content": "Results:\n[(10,)]"
+    },
+    {
+        "role": "assistant",
+        "content": "O número total de clientes no Reino Unido (UK) é 10."
+    },
+    {
+        "role": "user",
+        "content": "Obrigado. Qual o nome do nosso cliente mais jovem?"
+    },
+    {
+        "role": "assistant",
+        "content": "SQL_TOOL_CALL: SELECT first_name, last_name FROM customers ORDER BY birthdate DESC LIMIT 1"
+    },
+    {
+        "role": "user",
+        "content": "Results:\n[('Bruno', 'Costa')]"
+    },
+    {
+        "role": "assistant",
+        "content": "O nome do nosso cliente mais jovem é Bruno Costa."
+    },
+    {
+        "role": "user",
+        "content": "Qual a idade de Bruno Costa?"
+    },
+    {
+        "role": "assistant",
+        "content": "SQL_TOOL_CALL: SELECT (julianday('now') - julianday(birthdate)) / 365.25 AS age FROM customers WHERE first_name = 'Bruno' AND last_name = 'Costa'"
+    },
+    {
+        "role": "user",
+        "content": "Results:\n[(29.293942236734846,), (29.293942236734846,)]"
+    },
+    {
+        "role": "assistant",
+        "content": "A idade de Bruno Costa é aproximadamente 29 anos."
+    },
+    {
+        "role": "user",
+        "content": "Legal. Agora obtenha uma lista de todos nossos clientes que residem no Brazil."
+    },
+    {
+        "role": "assistant",
+        "content": "SQL_TOOL_CALL: SELECT * FROM customers WHERE country = 'Brazil'"
+    },
+    {
+        "role": "user",
+        "content": "Results:\n[(6, 'Silva', 'Ana', '1983-04-14', 'São Paulo', 'Brazil'), (7, 'Costa', 'Bruno', '1995-07-22', 'Rio de Janeiro', 'Brazil'), (8, 'Oliveira', 'Carla', '1988-09-16', 'Brasília', 'Brazil'), (9, 'Souza', 'Felipe', '1991-10-08', 'Curitiba', 'Brazil'), (10, 'Pereira', 'Mariana', '1993-12-03', 'Belo Horizonte', 'Brazil'), (16, 'Silva', 'Ana', '1983-04-14', 'São Paulo', 'Brazil'), (17, 'Costa', 'Bruno', '1995-07-22', 'Rio de Janeiro', 'Brazil'), (18, 'Oliveira', 'Carla', '1988-09-16', 'Brasília', 'Brazil'), (19, 'Souza', 'Felipe', '1991-10-08', 'Curitiba', 'Brazil'), (20, 'Pereira', 'Mariana', '1993-12-03', 'Belo Horizonte', 'Brazil')]"
+    },
+    {
+        "role": "assistant",
+        "content": "Aqui está a lista de todos os nossos clientes que residem no Brasil:\n\n| ID | Sobrenome | Nome   | Data de Nascimento | Endereço         | Cidade           | Estado | País   |\n|----|-----------|--------|--------------------|-------------------|------------------|--------|--------|\n| 6  | Silva     | Ana    | 1983-04-14         | São Paulo         | Brazil           |        | Brazil |\n| 7  | Costa     | Bruno  | 1995-07-22         | Rio de Janeiro    | Brazil           |        | Brazil |\n| 8  | Oliveira  | Carla  | 1988-09-16         | Brasília          | Brazil           |        | Brazil |\n| 9  | Souza     | Felipe  | 1991-10-08        | Curitiba          | Brazil           |        | Brazil |\n| 10 | Pereira   | Mariana | 1993-12-03        | Belo Horizonte    | Brazil           |        | Brazil |\n| 16 | Silva     | Ana    | 1983-04-14         | São Paulo         | Brazil           |        | Brazil |\n| 17 | Costa     | Bruno  | 1995-07-22         | Rio de Janeiro    | Brazil           |        | Brazil |\n| 18 | Oliveira  | Carla  | 1988-09-16         | Brasília          | Brazil           |        | Brazil |\n| 19 | Souza     | Felipe  | 1991-10-08        | Curitiba          | Brazil           |        | Brazil |\n| 20 | Pereira   | Mariana | 1993-12-03        | Belo Horizonte    | Brazil           |        | Brazil |\n\n(Note: The entries may contain duplicates as seen in the results.)"
+    },
+    {
+        "role": "user",
+        "content": "Ótimo, muito obrigado, até mais."
+    },
+    {
+        "role": "assistant",
+        "content": "De nada! Até mais! Se precisar de algo, estarei aqui para ajudar."
+    }
+]

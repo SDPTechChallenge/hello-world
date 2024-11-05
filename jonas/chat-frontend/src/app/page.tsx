@@ -1,35 +1,45 @@
 "use client";
 
+import { getChatEndpoint } from "@/utils/api";
 import { useState } from "react";
-
-const conversation = [
-  { role: "user", content: "Hello there!" },
-  { role: "assistant", content: "Hi! How can I help you today?" },
-  { role: "user", content: "I'm having trouble with my account." },
-  {
-    role: "assistant",
-    content: "I'm sorry to hear that. What seems to be the problem?",
-  },
-  {
-    role: "user",
-    content: "I can't seem to log in. Lorem ipsum dolor sit amet.",
-  },
-  {
-    role: "assistant",
-    content:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Enim voluptatum facilis debitis, voluptatem animi ea ad corrupti officia molestias est.",
-  },
-];
 
 const Home = () => {
   const [userInput, setUserInput] = useState("");
-  const [messages, setMessages] = useState(conversation);
+  const [messages, setMessages] = useState<
+    { role: "user" | "assistant"; content: string }[]
+  >([]);
+  const [waitingForResponse, setWaitingForResponse] = useState(false);
+
+  async function callChatEndpoint(message: string) {
+    setMessages((msgs) => [...msgs, { role: "user", content: userInput }]);
+    setUserInput("");
+    setWaitingForResponse(true);
+
+    const endpoint = getChatEndpoint("sql", "abcd1234");
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ content: message }),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      setMessages((msgs) => [
+        ...msgs,
+        { role: "assistant", content: data.response },
+      ]);
+    } else {
+      setMessages((msgs) => [
+        ...msgs,
+        { role: "assistant", content: "CONNECTION ERROR" },
+      ]);
+    }
+  }
 
   function submitInputIfEnter(e: React.KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      setMessages((msgs) => [...msgs, { role: "user", content: userInput }]);
-      setUserInput("");
+      callChatEndpoint(userInput);
     }
   }
 
@@ -52,6 +62,9 @@ const Home = () => {
               </div>
             );
           })}
+          {waitingForResponse && (
+            <div className="assistant-message">Escrevendo...</div>
+          )}
         </div>
         <div className="user-input-area-container absolute inset-0 top-auto p-2">
           <div className="user-input-area max-w-[660px] mx-auto">
@@ -62,7 +75,10 @@ const Home = () => {
               placeholder="Escreva sua mensagem aqui"
               className="user-input rounded-lg bg-zinc-300 p-1 px-2 w-full resize-none outline-none"
             ></textarea>
-            <button className="send-button bg-zinc-300 rounded-lg p-1 px-3">
+            <button
+              className="send-button bg-zinc-300 rounded-lg p-1 px-3"
+              onClick={() => callChatEndpoint(userInput)}
+            >
               Send
             </button>
           </div>
