@@ -22,7 +22,7 @@ class SQLChatbot:
         self.db_path = db_path
         self.messages.append({"role": "system", "content": instruction})
         self.retry_count = 0
-        self.debug = False
+        self.debug = True
         print("Chatbot inicializado com sucesso.")
         if few_shot_list:
             for index, content in enumerate(few_shot_list):
@@ -36,6 +36,7 @@ class SQLChatbot:
             if self.debug: print(f'[Executing query: {sql_command}]')
             connection = sql.connect(self.db_path)
             cursor = connection.cursor()
+            print('Connected to database at', self.db_path)
             # cursor.execute(create_customer_table_query)  # Cria tabela se não existir
             # cursor.execute(insert_customers_query)  # Insere dados na tabela
             results = cursor.execute(sql_command).fetchall()
@@ -48,7 +49,8 @@ class SQLChatbot:
                 self.retry_count = 0 # Resetting the count
                 return "Maximum number of tries exceeded. Do not retry."
             else:
-                return f'Database error. Please retry. Check for syntax errors. Do not use quotes around the SQL query.'
+                return f'Database error:\n' + str(error) + '\n' + \
+                        'Please retry. Check for syntax errors. Do not use quotes around the SQL query.'
         finally:
             connection.close()
             
@@ -61,28 +63,41 @@ class SQLChatbot:
         else:
             return None
 
-    def call_llm(self, message):
+    def call_llm(self, message, stream=False, callback=None):
         self.messages.append({"role": "user", "content": message})
-           
+        
         # Consulta ao modelo
         response = self.llm.chat.completions.create(
             model="gpt-4o-mini",
-            stream=False,
+            stream=stream,
+            temperature=0.4, 
             messages=self.messages
         )
         
-        response_text = response.choices[0].message.content
-        self.messages.append({"role" : "assistant", "content" : response_text})      
+        response_text = ""
+        
+        if stream:
+            chunks = ""
+            for chunk in response:
+                if chunk.choices[0].delta.content is not None:
+                    content = chunk.choices[0].delta.content or ""
+                    chunks += content
+                    yield content
+            response_text = chunks
+            self.messages.append({"role": "assistant", "content": response_text})
+        else:
+            response_text = response.choices[0].message.content
+            self.messages.append({"role" : "assistant", "content" : response_text})      
             
         sql_command = self.check_if_tool(response_text)
         
         if(sql_command):
             if self.debug: print("[SQL tool call]")
             results = self.execute_sql(sql_command)
-            response = self.call_llm(f'Results:\n{str(results)}')
-            return response
+            response = self.call_llm(f'Results:\n{str(results)}', stream=True)
+            callback(response)
         else:    
-            return response_text
+            callback(response_text)
 
     def start_conversation_loop(self):
         # Loop de conversa com o usuário
@@ -102,7 +117,20 @@ class SQLChatbot:
         return self.call_llm(message)
 
 # Carregar instruções para o chatbot
-instruction = open('sql_system_message.txt', 'r').read()
+# instruction = open('sql_system_message.txt', 'r').read()
+
+# Open sql_system_message.txt using absolute path
+instruction = open(os.path.join(os.path.dirname(__file__), 'sql_system_message.txt'), 'r').read()
 
 db_agent = SQLChatbot(instruction, DB_PATH)
-db_agent.start_conversation_loop()
+# db_agent.start_conversation_loop()
+
+def create_bot():
+    # Ensure the db path is absolute
+    db_abs_path = os.path.abspath(DB_PATH).replace('server', 'sofia')
+    print('Creating bot with db path', db_abs_path)
+    sqlbot = SQLChatbot(instruction, db_abs_path)
+    return sqlbot
+
+# To list all tables from a sqlite database, use the following query:
+# SELECT name FROM sqlite_master WHERE type='table';
