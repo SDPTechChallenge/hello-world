@@ -1,5 +1,5 @@
 from openai import OpenAI
-from langchain_community.document_loaders import PyPDFLoader
+from langchain_community.document_loaders import PyMuPDFLoader as PDFLoader
 from langchain_openai import ChatOpenAI
 from langchain_core.vectorstores import InMemoryVectorStore
 from langchain_openai import OpenAIEmbeddings
@@ -16,10 +16,13 @@ import json
 
 load_dotenv()
 
-client = OpenAI(
-    base_url="https://integrate.api.nvidia.com/v1",
-    api_key=os.getenv("NVIDIA_API_KEY")
-)
+# client = OpenAI(
+#     base_url="https://integrate.api.nvidia.com/v1",
+#     api_key=os.getenv("NVIDIA_API_KEY")
+# )
+
+client = OpenAI()
+
 
 class MarcusChatbot:
 
@@ -32,6 +35,9 @@ class MarcusChatbot:
         self.docs = None
         self.rag_chain = None  # Store the RAG chain for reuse
 
+    def __call__(self, message):
+        return self.process_user_message(message)
+
     def call_llm(self, prompt):
         self.messages.append({"role": "user", "content": prompt})
 
@@ -41,13 +47,13 @@ class MarcusChatbot:
             temperature=0.2,
             top_p=0.7,
             max_tokens=1024,
-            stream=False
+            stream=True
         )
-        response = completion.choices[0].message.content
 
-        self.messages.append({"role": "assistant", "content": response})
+        # response = completion.choices[0].message.content
+        # self.messages.append({"role": "assistant", "content": response})
 
-        return response
+        return completion
 
     def save_messages_to_file(self, filename="messages_list.json"):
         message_list_string = json.dumps(self.messages)
@@ -66,12 +72,16 @@ class MarcusChatbot:
 
     def prepare_rag_chain(self):
         llm = ChatOpenAI(model=self.model_name)
-        text_splitter = RecursiveCharacterTextSplitter(chunk_size=2000, chunk_overlap=400)
+        text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=2000, chunk_overlap=400)
         splits = text_splitter.split_documents(self.docs)
+
         print(f'[Splitting finished with {len(splits)} splits]')
+
         vectorstore = InMemoryVectorStore.from_documents(
             documents=splits, embedding=OpenAIEmbeddings()
         )
+
         retriever = vectorstore.as_retriever()
 
         system_prompt = (
@@ -92,7 +102,8 @@ class MarcusChatbot:
         )
 
         question_answer_chain = create_stuff_documents_chain(llm, prompt)
-        self.rag_chain = create_retrieval_chain(retriever, question_answer_chain)
+        self.rag_chain = create_retrieval_chain(
+            retriever, question_answer_chain)
 
     def submit_question(self, question):
         result = self.rag_chain.stream({"input": question})
@@ -114,8 +125,19 @@ class MarcusChatbot:
         )
         response = completion.choices[0].message.content.strip().upper()
         return ('SPECIFIC' in response)
-    
-    def start_conversation_loop(self):
+
+    def process_user_message(self, message, filepath=""):
+        if not self.document_loaded and filepath:
+            self.load_document(filepath)
+
+        if self.is_question_about_document(message):
+            llm_response = self.submit_question(message)
+            return llm_response
+        else:
+            llm_response = self.call_llm(message)
+            return llm_response
+
+    def start_conversation_loop(self, filepath='test_files/Attention Is All You Need.pdf'):
         while True:
             user_message = input("Você: ")
             if user_message.lower() == "quit":
@@ -125,7 +147,7 @@ class MarcusChatbot:
             if self.is_question_about_document(user_message):
                 if not self.document_loaded:
                     # Load the document once
-                    self.load_document(filepath='test_files/Attention Is All You Need.pdf')
+                    self.load_document(filepath)
                 llm_response = self.submit_question(user_message)
                 print('[SPECIFIC] ', end="", flush=True)
                 for chunk in llm_response:
@@ -137,7 +159,7 @@ class MarcusChatbot:
                 print(f"Chatbot: [GENERIC] {llm_response}")
 
 # Instantiate the chatbot
-chatbot = MarcusChatbot()
+# chatbot = MarcusChatbot()
 
 # Start the conversation loop
-chatbot.start_conversation_loop()
+# chatbot.start_conversation_loop()
