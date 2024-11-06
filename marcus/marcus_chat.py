@@ -26,7 +26,7 @@ client = OpenAI()
 
 class MarcusChatbot:
 
-    def __init__(self, system_message=None, model_name='gpt-4o-mini'):
+    def __init__(self, system_message=None, model_name='gpt-4o-mini', filepath=""):
         print('Chatbot instanciado com sucesso.')
         self.messages = []
         self.model_name = model_name
@@ -34,6 +34,8 @@ class MarcusChatbot:
         self.document_loaded = False  # Flag to check if document is loaded
         self.docs = None
         self.rag_chain = None  # Store the RAG chain for reuse
+        if filepath:
+            self.load_document(filepath)
 
     def __call__(self, message):
         return self.process_user_message(message)
@@ -126,10 +128,7 @@ class MarcusChatbot:
         response = completion.choices[0].message.content.strip().upper()
         return ('SPECIFIC' in response)
 
-    def process_user_message(self, message, filepath=""):
-        if not self.document_loaded and filepath:
-            self.load_document(filepath)
-
+    def process_user_message(self, message):
         if self.is_question_about_document(message):
             llm_response = self.submit_question(message)
             return llm_response
@@ -158,8 +157,10 @@ class MarcusChatbot:
                 llm_response = self.call_llm(user_message)
                 print(f"Chatbot: [GENERIC] {llm_response}")
 
+
 # Instantiate the chatbot
-# chatbot = MarcusChatbot()
+# filepath = "C:/Users/Jonas_Gripa/OneDrive - Dell Technologies/Documents/tech_challenge/hello-world/uploaded_files/Attention Is All You Need.pdf"
+# chatbot = MarcusChatbot(filepath=filepath)
 
 # Start the conversation loop
 # chatbot.start_conversation_loop()
