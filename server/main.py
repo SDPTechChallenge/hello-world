@@ -70,6 +70,11 @@ def remove_uploaded_files():
     document_filepaths.clear()
 
 
+@app.get('/teste')
+def show_message():
+    return JSONResponse(content={"response": "Hello, world!"}, status_code=200)
+
+
 @app.post('/documents')
 async def handle_document_upload(files: List[UploadFile] = File(...)):
     # First remove all files from the previous request

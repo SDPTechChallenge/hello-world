@@ -14,3 +14,5 @@ Table: mall_customers
  - Age (INTEGER)
  - Annual_Income_(k$) (INTEGER)
  - Spending_Score (INTEGER)
+
+ {table_schema}

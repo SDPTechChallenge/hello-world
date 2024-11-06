@@ -49,7 +49,7 @@ class MarcusChatbot:
         # Armazenamento dessa resposta no histórico de mensagens do chatbot
         self.messages.append({"role": "assistant", "content": response})
 
-        return completion
+        return response
 
     # Salva as mensagens armazenadas em um arquivo JSON
     def save_messages_to_file(self, filename="messages_list.json"):
@@ -177,9 +177,9 @@ class MarcusChatbot:
 
 
 # Instantiate the chatbot
-chatbot = MarcusChatbot()
+# chatbot = MarcusChatbot()
 
 # chatbot.save_messages_to_file("messages_list.json")
 
 # Start the conversation loop
-chatbot.start_conversation_loop()
+# chatbot.start_conversation_loop()

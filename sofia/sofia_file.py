@@ -17,8 +17,10 @@ SCHEMA_FILE = 'sql_system_message.txt'
 run_pipeline(DB_PATH, SCHEMA_FILE)
 
 # Classe SQLChatbot
+
+
 class SQLChatbot:
-    def __init__(self, instruction, db_path, few_shot_list=None):
+    def __init__(self, instruction, db_path, few_shot_list=None, table_schema=""):
         self.messages = []
         self.llm = OpenAI()
         self.db_path = db_path
@@ -107,6 +109,7 @@ class SQLChatbot:
     def __call__(self, message):
         return self.call_llm(message)
 
+
 # Carregar instruções para o chatbot
 with open(SCHEMA_FILE, 'r') as f:
     instruction = f.read()
@@ -115,11 +118,16 @@ with open(SCHEMA_FILE, 'r') as f:
 db_agent = SQLChatbot(instruction, DB_PATH)
 db_agent.start_conversation_loop()
 
+
 def create_bot():
     db_abs_path = os.path.abspath(DB_PATH).replace('server', 'sofia')
     print('Creating bot with db path', db_abs_path)
     sqlbot = SQLChatbot(instruction, db_abs_path)
     return sqlbot
+
+
+# original_message = open('message.txt').read()
+# new_message = original_message.format(table_schema=sql_table_string)
 
 # Para listar todas as tabelas do SQLite, utilize a consulta:
 # SELECT name FROM sqlite_master WHERE type='table';
