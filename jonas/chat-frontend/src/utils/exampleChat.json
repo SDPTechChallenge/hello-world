@@ -1,0 +1,67 @@
+[
+  {
+    "role": "system",
+    "content": "You are an news search assistant. You can interact with the user normally and answer traditional queries about general topics and trivia.\nHowever, when asked about news and current world topics (e.g. stock market, recent or ongoing events and other similar real-time news-like information), you must call a tool with the respective news query.\nTo call the tool, you must output the following response, without any additional commentary, in order not to confuse the message parser:\n\nNEWS_TOOL_CALL: <news_search_query>\n\nReplace `<news_search_query>` with the respective query in English (translate if necessary). Eg., \"Latest developments in war between Russia and Ukraine\" or \"Stock market events\".\nThe tool will be invoked and a response containing the requested news, in the form of short article summaries, will be provided within <QUERY_RESULTS> tags.\nYou must then proceed to respond to the user query, using natural language, based on the tool's output. \n\n## Example conversation\n\nUser: Hello!\nAssistant: Hello! How are you doing?\nUser: I'm doing great, thanks. What's the capital of France?\nAssistant: The capital of France is Paris. Is there anything else I can help you with?\nUser: Yes. I'd like information on the US presidential election.\nAssistant: NEWS_TOOL_CALL: US presidential election\nUser: <QUERY_RESULTS>(Text containing news article summaries about the queried topic)</QUERY_RESULTS>\nAssistant: Here's a summary of the latest developments in the US presidential elections... (Use context provided above for news summarization)\nUser: Thanks!",
+    "isVisibleToUser": false
+  },
+  {
+    "role": "user",
+    "content": "Olá, tudo bem?",
+    "isVisibleToUser": true
+  },
+  {
+    "role": "assistant",
+    "content": "Olá! Tudo bem, obrigado! E você, como está?",
+    "isVisibleToUser": true
+  },
+  {
+    "role": "user",
+    "content": "Estou bem. Preciso de noticias sobre a guerra entre Russia e Ucrania.",
+    "isVisibleToUser": true
+  },
+  {
+    "role": "assistant",
+    "content": "NEWS_TOOL_CALL: Latest developments in war between Russia and Ukraine",
+    "isVisibleToUser": false
+  },
+  {
+    "role": "user",
+    "content": "<QUERY_RESULTS>Ukraine War Latest Update: Ukrainian Forces Counter One of the Most Powerful Russian Offensives, Says Army Chief Russian forces have seized more territory in eastern Ukraine than at any other time in 2024, capturing over 200 square kilometers (77 square miles) in the last week. The Russian military is currently mounting one of its most powerful offensives since the start of the full-scale invasion of Ukraine, according to Commander-in-Chief of the Ukrainian Armed Forces, Oleksandr Syrsky. According to the recent Bloomberg report published on Friday, Nov. 1, Russian forces have seized more territory in eastern Ukraine than at any other time in 2024, capturing over 200 square kilometers (77 square miles) in the last week.\n----------\nRussia Bombards Kyiv and Other Ukrainian Cities Non-Stop for Second Straight Day Russia Bombards Kyiv and Other Ukrainian Cities Non-Stop for Second Straight Day Russia Bombards Kyiv and Other Ukrainian Cities Non-Stop for Second Straight Day Russia’s air assault on Kyiv has continued almost non-stop since early morning Saturday until early morning Sunday, with only a six-hour break. For nearly two days, Russian forces have launched continuous drone attacks on Kyiv and other Ukrainian cities, igniting fires and causing damage as debris from intercepted drones falls across the city. A new wave began at 8 p.m. Saturday and continued until early Sunday morning at 6:40 a.m., with drones flying at low altitudes that evade standard detection systems. Kyiv authorities reported incidents across the city.\n----------\nRussia captures record amount of territory in eastern Ukraine amid intensifying offensive — Novaya Gazeta Europe Russia captures record amount of territory in eastern Ukraine amid intensifying offensive Russia seized more Ukrainian territory in the final week of October than at any other point so far this year, Bloomberg reported on Friday, as the Russian advance in eastern Ukraine gathers pace. According to Bloomberg, Russia has captured of a total of 1,146 square kilometres of land since the Armed Forces of Ukraine (AFU) launched their surprise incursion into Russia’s southwestern Kursk region on 6 August — thereby taking control of around 25% more Ukrainian territory since the start of August than in the first seven months of the year.\n----------\nAs Russia Advances, U.S. Fears Ukraine Has Entered a Grim Phase - The New York Times Ukraine is losing territory in the east, and its forces inside Russia have been partially pushed back.Credit...Tyler Hicks/The New York Times American military and intelligence officials have concluded that the war in Ukraine is no longer a stalemate as Russia makes steady gains, and the sense of pessimism in Kyiv and Washington is deepening. If U.S. support for Ukraine remains strong until next summer, Kyiv could have an opportunity to take advantage of Russia’s weaknesses and expected shortfalls in soldiers and tanks, American officials say. U.S. government analysts concluded this summer that Russia was unlikely to make significant gains in Ukraine in the coming months, as its poorly trained forces struggled to break through Ukrainian defenses.\n----------\nRussian Strikes on Ukraine Hit Record High in October: Ukrainian Officials - Newsweek Amid the ongoing war, Russia has launched roughly 2,000 drone strikes on Ukraine in October, a record-high for the year, according to Ukrainian officials. Ukraine's ministry of defense wrote in a post on X, formerly Twitter, on Friday that Russia launched \"a record number\" of drone strikes into Ukraine. In September, Russia launched 1,339 Shahed-type kamikaze drones into Ukraine, The Kyiv Independent reported, citing Ukraine's Aire Force. Amid the ongoing war, Russia has launched roughly 2,000 drone strikes on Ukraine... Amid the ongoing war, Russia has launched roughly 2,000 drone strikes on Ukraine in October, a record-high for the year, according to Ukrainian officials.</QUERY_RESULTS>",
+    "isVisibleToUser": false
+  },
+  {
+    "role": "assistant",
+    "content": "Aqui está um resumo das últimas notícias sobre a guerra entre Rússia e Ucrânia: as forças russas estão avançando em território ucraniano, capturando mais de 200 quilômetros quadrados de terra nos últimos dias. A Rússia também está realizando ataques aéreos contínuos contra cidades ucranianas, incluindo Kiev, com drones que evitam sistemas de detecção padrão. Além disso, os EUA estão preocupados com o avanço russo e a perda de território ucraniano, e os oficiais americanos estão concluindo que a guerra não está mais empatada. A Ucrânia também está sofrendo com um número recorde de ataques de drones russos, com cerca de 2.000 ataques em outubro.",
+    "isVisibleToUser": true
+  },
+  {
+    "role": "user",
+    "content": "Obrigado. Agora, por favor, otenha noticias sobre a pandemia de covid-19",
+    "isVisibleToUser": true
+  },
+  {
+    "role": "assistant",
+    "content": "NEWS_TOOL_CALL: Latest news on COVID-19 pandemic",
+    "isVisibleToUser": false
+  },
+  {
+    "role": "user",
+    "content": "<QUERY_RESULTS>Local News Only News How to Watch WCAX By WCAX News Team BURLINGTON, Vt. (WCAX) - If you’re dragging your feet to get an updated COVID-19 shot, experts say the time is now. Kinney Drugs pharmacist Steven Simpson administered countless COVID-19 vaccines this fall. “The variation, you know, can really change how severe COVID-19 is for certain individuals...It’s very important to get vaccinated,” said Simpson. While winter is weeks away, Simpson says it takes a bit for your body to build up full immunity after the vaccine. The state recommends that everyone six months and older get the latest COVID-19 vaccine. Latest News News WCAX South Burlington, VT 05403\n----------\nTrump disputes report that, as president, he secretly sent Putin COVID-19 testing kit Trump disputes report that, as president, he secretly sent Putin COVID-19 testing kit Former President Donald Trump is disputing a report that he has had \"as many as seven\" phone calls with Russian President Vladimir Putin since he left the White House, and that, back when he was in office, Trump secretly sent Putin a COVID-19 testing kit for his personal use. In the book, Woodward reportedly wrote that Trump sent a COVID-19 testing kit to Putin at a point in the pandemic when tests were in short supply -- and that, after Putin received the kit, he told Trump, \"I don't want you to tell anybody because people will get mad at you, not me.\" Trump disputes report that, as president, he secretly sent Putin COVID-19 testing kit originally appeared on abcnews.go.com\n----------\nKnown for espousing conspiracy theories related to health, particularly vaccines, Kennedy appears to be angling for a cabinet role in a possible second Trump Administration, according to NBC News. But perhaps more ominously, the Covid-19 pandemic seems to have brought out vaccine skeptics like Kennedy in full force, not only toward coronavirus vaccines but also traditional childhood immunizations, like those targeting polio, tetanus and measles. Despite the debunking of Wakefield’s allegations, Kennedy became a prominent American figure misinforming the public by continuing to maintain that there’s a link between childhood vaccines and autism. And on Rogan’s shows and elsewhere Kennedy has backed a number of Covid-19 vaccine conspiracy theories. Since running for president and subsequently endorsing Trump, Kennedy has tried to distance himself from the anti-vaccine movement.\n----------\n“Overly optimistic expectations for continued growth in international enrolments, driven by a temporary post-COVID boom, led many UK universities to adjust their future student recruitment targets based on these inflated figures, rather than viewing the surge as a temporary anomaly,” said Vincenzo Raimo, an international higher education consultant and visiting fellow at the University of Reading. Ilieva said most of the remarkable growth in international students enrolled at UK universities, which saw the number of new entrants rise from 273,340 in 2018-19 to 459,170 in 2022-23, was the result of a surge in demand for one-year masters degrees, “as students sought short-term, cost-effective options, after the COVID pandemic”.\n----------\nBiden-Harris administration failed to recoup $200B in fraudulent COVID loans, House committee says | Fox News Fox News Media Fox News Media Fox News FOX News Go Fox News FIRST ON FOX: A new report from the House of Representatives is accusing the Biden administration of failing to recover some $200 billion in fraudulent COVID-19 pandemic loans. Fox News Digital reached out to the SBA and the House Small Business Committee’s Democratic minority for comment. Elizabeth Elkind is a politics reporter for Fox News Digital leading coverage of the House of Representatives. Fox News Politics By entering your email and clicking the Subscribe button, you agree to the Fox News Privacy Policy and Terms of Use, and agree to receive content and promotional communications from Fox News. FOX News Go Fox News</QUERY_RESULTS>",
+    "isVisibleToUser": false
+  },
+  {
+    "role": "assistant",
+    "content": "Aqui está um resumo das últimas notícias sobre a pandemia de COVID-19:\n\n* Os especialistas estão recomendando que as pessoas sejam vacinadas contra a COVID-19 agora, antes do inverno, para evitar a propagação da doença.\n* Um relatório sugere que o ex-presidente dos EUA, Donald Trump, enviou secretamente um kit de teste de COVID-19 para o presidente russo, Vladimir Putin, durante a pandemia.\n* O movimento anti-vacinação está ganhando força, com figuras como Robert Kennedy Jr. espalhando teorias da conspiração sobre vacinas.\n* As universidades do Reino Unido estão enfrentando uma redução no número de estudantes internacionais, após um aumento temporário durante a pandemia.\n* Um relatório da Câmara dos Representantes dos EUA acusa a administração Biden de não ter recuperado cerca de US$ 200 bilhões em empréstimos fraudulentos relacionados à pandemia de COVID-19.\n\nEssas são apenas algumas das notícias mais recentes sobre a pandemia de COVID-19. Se você tiver alguma pergunta específica ou precisar de mais informações, sinta-se à vontade para perguntar!",
+    "isVisibleToUser": true
+  },
+  {
+    "role": "user",
+    "content": "Obrigado, tchau!",
+    "isVisibleToUser": true
+  },
+  {
+    "role": "assistant",
+    "content": "De nada! Tchau! Que você tenha um ótimo dia!",
+    "isVisibleToUser": true
+  }
+]
