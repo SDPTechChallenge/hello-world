@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from typing import Optional, List
 from marcus.marcus_chat import MarcusChatbot
 from sofia.sofia_file import SQLChatbot, create_bot
-from thalita.chat_draft import InternetSearchChatbot
+from thalita.chat_draft import InternetSearchChatbot, create_assistant
 from logging import Logger
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
@@ -102,8 +102,7 @@ def handleChat(message: Optional[UserMessage], bot_name=BOT_DOCUMENT, conv_id=""
         if not document_bot:
             document_bot = MarcusChatbot(filepath=document_filepaths[0])
         response = document_bot.process_user_message(message.content)
-        print(response)
-        return StreamingResponse(content=stream_generator(response, lambda message: document_bot.messages.append({"role": "assistant", "content": message})), status_code=200, headers={"Content-Type": "text/event-stream"})
+        return JSONResponse(content={"response": response}, status_code=200)
 
     if bot_name == BOT_SQL:
         if not sql_bot:
@@ -114,7 +113,10 @@ def handleChat(message: Optional[UserMessage], bot_name=BOT_DOCUMENT, conv_id=""
 
     if bot_name == BOT_INTERNET:
         if not internet_bot:
-            internet_bot = InternetSearchChatbot()
-        response = internet_bot.get_completion(message.content)
-        if response:
-            return JSONResponse(content={"response": response}, status_code=200,)
+            internet_bot = create_assistant()
+        try:
+            response = internet_bot.get_completion(message.content)
+            if response:
+                return JSONResponse(content={"response": response}, status_code=200)
+        except Exception as e:
+            return JSONResponse(content={"error": str(e)}, status_code=500)
