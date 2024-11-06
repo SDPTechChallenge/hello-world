@@ -25,7 +25,7 @@ class InternetSearchChatbot:
         self.model_name = model_name
         self.messages = []
         self.llm_client = llm_client
-        self.tav_client = TavilyClient()
+        self.tavily_client = TavilyClient()
 
         if system_message is not None:
             self.messages.append({"role": "system", "content": system_message})
@@ -47,7 +47,7 @@ class InternetSearchChatbot:
         # Isso assegura que o contexto, ou memória da conversa, será mantida ao longo da interacao.
         response = self.llm_client.chat.completions.create(
             model=self.model_name,
-            temperature=0.2,
+            temperature=0.4,
             messages=self.messages,
             stream=False
         )
@@ -80,7 +80,7 @@ class InternetSearchChatbot:
             return None
 
     def perform_internet_search(self, query, topic="news"):
-        tav_response = self.tav_client.search(query, topic=topic)
+        tav_response = self.tavily_client.search(query, topic=topic)
         contents = [res['content'] for res in tav_response['results']]
         separator = "\n----------\n"
         joined_contents = separator.join(contents)
@@ -110,14 +110,28 @@ class InternetSearchChatbot:
         return self.get_completion(message)
 
 
-with open('chat_messages.json', 'r', encoding="utf-8") as file:
+messages_abs_path = os.path.join(
+    os.path.dirname(__file__), 'chat_messages.json')
+instructions_abs_path = os.path.join(
+    os.path.dirname(__file__), 'instructions.txt')
+
+with open(messages_abs_path, 'r', encoding="utf-8") as file:
     fewshot_list = json.load(file)
 
-client = create_client('nvidia')
-bot = BasicChatbotWithTool(
-    system_message=open('./instructions.txt').read(),
-    llm_client=client,
-    model_name="meta/llama-3.1-70b-instruct",
-)
 
-bot.start_conversation_loop()
+def create_assistant():
+    client = create_client('openai')
+    bot = InternetSearchChatbot(
+        system_message=open(instructions_abs_path).read(),
+        llm_client=client,
+        model_name="gpt-4o-mini",
+        # model_name="meta/llama-3.1-70b-instruct",
+        # fewshot_list=fewshot_list
+    )
+    return bot
+
+
+# assistant = create_assistant()
+# assistant.start_conversation_loop()
+
+# bot.start_conversation_loop()

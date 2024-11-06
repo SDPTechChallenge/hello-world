@@ -1,9 +1,8 @@
 const API_URL = "http://localhost:8000";
 
-function getChatEndpoint(
-  botName: "bot_sql" | "bot_document" | "bot_internet",
-  conversationId: string
-) {
+// type ChatOptions = "bot_sql" | "bot_document" | "bot_internet"
+
+function getChatEndpoint(botName: string, conversationId: string) {
   return `${API_URL}/chat/${botName}/${conversationId}`;
 }
 

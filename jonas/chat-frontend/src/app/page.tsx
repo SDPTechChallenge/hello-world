@@ -11,16 +11,15 @@ import { FiLoader as Loader } from "react-icons/fi";
 
 const Home = () => {
   const [userInput, setUserInput] = useState("");
-  const [messages, setMessages] =
-    useState<{ role: string; content: string; isVisibleToUser: boolean }[]>(
-      exampleChat
-    );
+  const [messages, setMessages] = useState<
+    { role: string; content: string; isVisibleToUser: boolean }[]
+  >([]);
   const [waitingForResponse, setWaitingForResponse] = useState(false);
   const [currentMessage, setCurrentMessage] = useState<string | null>(null);
   const [files, setFiles] = useState<FileList | null>(null);
-  const [chatOption, setChatOption] = useState<
-    "bot_sql" | "bot_document" | "bot_internet"
-  >("bot_sql");
+  const [chatOption, setChatOption] = useState("bot_sql");
+
+  console.log(getChatEndpoint(chatOption, "abcd1234"));
 
   async function callChatEndpoint(message: string) {
     setMessages((msgs) => [
@@ -154,7 +153,8 @@ const Home = () => {
             )}
           </div>
         </div>
-        <form className="user-input-area-container absolute inset-0 top-auto p-2">
+
+        <form className="user-input-area-container absolute inset-0 top-auto p-2 bg-white">
           <div className="user-input-area max-w-[800px] mx-auto">
             <textarea
               value={userInput}

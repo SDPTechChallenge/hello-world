@@ -96,8 +96,8 @@
   text-decoration: underline;
 }
 
-.chat-message :is(p, pre, ul, ol, table, hr) {
-  margin-top: 0.46rem;
+.chat-message :is(pre, ul, ol, table, hr) {
+  margin-top: 0.2rem;
 }
 
 .chat-message ol {
