@@ -18,6 +18,7 @@ load_dotenv()
 
 client = OpenAI()
 
+
 class MarcusChatbot:
 
     def __init__(self, system_message=None, model_name='gpt-4o-mini'):
@@ -63,7 +64,8 @@ class MarcusChatbot:
 
     def prepare_rag_chain(self):
         llm = ChatOpenAI(model=self.model_name)
-        text_splitter = RecursiveCharacterTextSplitter(chunk_size=2000, chunk_overlap=400)
+        text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=2000, chunk_overlap=400)
         splits = text_splitter.split_documents(self.docs)
         print(f'[Splitting finished with {len(splits)} splits]')
         vectorstore = InMemoryVectorStore.from_documents(
@@ -90,7 +92,8 @@ class MarcusChatbot:
         )
 
         question_answer_chain = create_stuff_documents_chain(llm, prompt)
-        self.rag_chain = create_retrieval_chain(retriever, question_answer_chain)
+        self.rag_chain = create_retrieval_chain(
+            retriever, question_answer_chain)
 
     def submit_question(self, question):
         result = self.rag_chain.stream({"input": question})
@@ -112,7 +115,7 @@ class MarcusChatbot:
         )
         response = completion.choices[0].message.content.strip().upper()
         return ('SPECIFIC' in response)
-    
+
     def start_conversation_loop(self):
         while True:
             user_message = input("Você: ")
@@ -123,7 +126,8 @@ class MarcusChatbot:
             if self.is_question_about_document(user_message):
                 if not self.document_loaded:
                     # Load the document once
-                    self.load_document(filepath='test_files/Attention Is All You Need.pdf')
+                    self.load_document(
+                        filepath='test_files/Attention Is All You Need.pdf')
                 llm_response = self.submit_question(user_message)
                 print('[SPECIFIC] ', end="", flush=True)
                 for chunk in llm_response:
@@ -135,7 +139,7 @@ class MarcusChatbot:
                 print(f"Chatbot: [GENERIC] {llm_response}")
 
 # Instantiate the chatbot
-chatbot = MarcusChatbot()
+# chatbot = MarcusChatbot()
 
 # Start the conversation loop
-chatbot.start_conversation_loop()
+# chatbot.start_conversation_loop()
