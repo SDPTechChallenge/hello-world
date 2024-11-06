@@ -2,6 +2,7 @@ from pydantic import BaseModel
 from typing import Optional, List
 from marcus.marcus_chat import MarcusChatbot
 from sofia.sofia_file import SQLChatbot, create_bot
+from thalita.chat_draft import InternetSearchChatbot
 from logging import Logger
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
@@ -108,5 +109,12 @@ def handleChat(message: Optional[UserMessage], bot_name=BOT_DOCUMENT, conv_id=""
         if not sql_bot:
             sql_bot = create_bot()
         response = sql_bot(message.content)
-        return JSONResponse(content={"response": response}, status_code=200, headers={"Content-Type": "application/json"})
+        return JSONResponse(content={"response": response}, status_code=200)
         # return StreamingResponse(content=stream_generator(response, lambda message: sql_bot.messages.append({"role": "assistant", "content": message})), status_code=200)
+
+    if bot_name == BOT_INTERNET:
+        if not internet_bot:
+            internet_bot = InternetSearchChatbot()
+        response = internet_bot.get_completion(message.content)
+        if response:
+            return JSONResponse(content={"response": response}, status_code=200,)
