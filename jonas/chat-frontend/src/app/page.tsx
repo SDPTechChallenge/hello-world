@@ -9,6 +9,13 @@ import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { FiLoader as Loader } from "react-icons/fi";
 
+const modelOptions = [
+  { value: "gpt-4o-mini", label: "gpt-4o-mini" },
+  { value: "gpt-4o", label: "gpt-4o" },
+  { value: "meta/llama-3.2-3b-instruct", label: "llama-3.2-3b-instruct" },
+  { value: "meta/llama-3.1-70b-instruct", label: "llama-3.1-70b-instruct" },
+];
+
 const Home = () => {
   const [userInput, setUserInput] = useState("");
   const [messages, setMessages] = useState<
@@ -18,6 +25,7 @@ const Home = () => {
   const [currentMessage, setCurrentMessage] = useState<string | null>(null);
   const [files, setFiles] = useState<FileList | null>(null);
   const [chatOption, setChatOption] = useState("bot_sql");
+  const [modelName, setModelName] = useState("gpt-4o-mini");
 
   console.log(getChatEndpoint(chatOption, "abcd1234"));
 
@@ -33,7 +41,7 @@ const Home = () => {
     const response = await fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ content: message }),
+      body: JSON.stringify({ content: message, model: modelName }),
     });
 
     if (response && response.ok) {
@@ -109,12 +117,18 @@ const Home = () => {
     <main>
       <header className="fixed w-full h-12 flex flex-rows items-center justify-between bg-slate-200 px-4 z-10">
         <h1 className="text-center text-lg font-bold">Chat</h1>
-        <div>
+        <div className="flex flex-row gap-4 items-center">
           <Dropdown
             handleChange={setChatOption}
             value={chatOption}
             placeholder="Select chat"
             items={chatOptions}
+          />
+          <Dropdown
+            handleChange={setModelName}
+            value={modelName}
+            placeholder="Select model"
+            items={modelOptions}
           />
         </div>
       </header>
