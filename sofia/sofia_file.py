@@ -1,22 +1,22 @@
 from openai import OpenAI
 from dotenv import load_dotenv
-from sqlite3 import DatabaseError, Error
 import os
 import re
 import sqlite3 as sql
 import json
+from database import run_pipeline  # Importa o pipeline do database.py
 
 load_dotenv()
 
-# Llama 3.2 3B
-# Llama 3.1 70B
-openai_client = OpenAI()
+client = OpenAI()
 
 DB_PATH = 'SQLChatbot.db'
+SCHEMA_FILE = 'sql_system_message.txt'
+
+# Executa o pipeline de dados antes de inicializar o chatbot
+run_pipeline(DB_PATH, SCHEMA_FILE)
 
 # Classe SQLChatbot
-
-
 class SQLChatbot:
     def __init__(self, instruction, db_path, few_shot_list=None):
         self.messages = []
@@ -33,7 +33,6 @@ class SQLChatbot:
                 self.messages.append({"role": role, "content": content})
 
     def execute_sql(self, sql_command):
-
         # Executa uma consulta SQL no banco de dados SQLite
         try:
             if self.debug:
@@ -41,17 +40,15 @@ class SQLChatbot:
             connection = sql.connect(self.db_path)
             cursor = connection.cursor()
             print('Connected to database at', self.db_path)
-            # cursor.execute(create_customer_table_query)  # Cria tabela se não existir
-            # cursor.execute(insert_customers_query)  # Insere dados na tabela
             results = cursor.execute(sql_command).fetchall()
             if self.debug:
                 print(f'[Obtained results: {str(results)}]')
             connection.commit()
             return results
-        except DatabaseError as error:
+        except sql.DatabaseError as error:
             self.retry_count += 1
             if self.retry_count > 2:
-                self.retry_count = 0  # Resetting the count
+                self.retry_count = 0  # Resetando o contador
                 return "Maximum number of tries exceeded. Do not retry."
             else:
                 return f'Database error:\n' + str(error) + '\n' + \
@@ -60,6 +57,7 @@ class SQLChatbot:
             connection.close()
 
     def check_if_tool(self, message: str):
+        # Verifica se a resposta contém um comando SQL
         pattern = r'SQL_TOOL_CALL\s*:\s*(.*)'
         match = re.match(pattern, message, re.MULTILINE)
         if match:
@@ -75,7 +73,7 @@ class SQLChatbot:
         response = self.llm.chat.completions.create(
             model="gpt-4o-mini",
             stream=stream,
-            temperature=0.4,
+            temperature=0.2,
             messages=self.messages
         )
 
@@ -83,7 +81,7 @@ class SQLChatbot:
 
         sql_command = self.check_if_tool(response_text)
 
-        if (sql_command):
+        if sql_command:
             if self.debug:
                 print("[SQL tool call]")
             results = self.execute_sql(sql_command)
@@ -95,8 +93,6 @@ class SQLChatbot:
     def start_conversation_loop(self):
         # Loop de conversa com o usuário
         while True:
-            # Caso o usuário digite "exit", o loop é encerrado e a conversa acaba
-            # Se não for digitado "exit" o método "get_completion()" é continuamente chamado
             user_input = input("Você: ")
             if user_input == 'DEBUG':
                 self.debug = True
@@ -112,23 +108,18 @@ class SQLChatbot:
         return self.call_llm(message)
 
 # Carregar instruções para o chatbot
-# instruction = open('sql_system_message.txt', 'r').read()
+with open(SCHEMA_FILE, 'r') as f:
+    instruction = f.read()
 
-
-# Open sql_system_message.txt using absolute path
-instruction = open(os.path.join(os.path.dirname(__file__),
-                   'sql_system_message.txt'), 'r').read()
-
+# Inicializar o chatbot e iniciar o loop de conversa
 db_agent = SQLChatbot(instruction, DB_PATH)
-# db_agent.start_conversation_loop()
-
+db_agent.start_conversation_loop()
 
 def create_bot():
-    # Ensure the db path is absolute
     db_abs_path = os.path.abspath(DB_PATH).replace('server', 'sofia')
     print('Creating bot with db path', db_abs_path)
     sqlbot = SQLChatbot(instruction, db_abs_path)
     return sqlbot
 
-# To list all tables from a sqlite database, use the following query:
+# Para listar todas as tabelas do SQLite, utilize a consulta:
 # SELECT name FROM sqlite_master WHERE type='table';
