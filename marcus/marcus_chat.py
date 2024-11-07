@@ -75,7 +75,7 @@ class MarcusChatbot:
         pass
 
     def load_document(self, filepath):  # Os arquivos estão salvos em filepath
-        loader = PyPDFLoader(filepath)
+        loader = PDFLoader(filepath)
         self.docs = loader.load()  # Lê conteúdo do PDF e retorna dados
         self.document_loaded = True  # Atualiza se o documento foi carregado com sucesso
         print('[Document loaded]')
