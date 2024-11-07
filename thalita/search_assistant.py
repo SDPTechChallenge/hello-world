@@ -20,15 +20,15 @@ def create_client(vendor='openai') -> OpenAI:
         return client
 
 
-class InternetSearchChatbot:
-    def __init__(self, model_name="gpt-4o-mini", system_message=None, llm_client=OpenAI(), fewshot_list=[]):
+class InternetSearchAssistant:
+    def __init__(self, model_name="gpt-4o-mini", instructions=None, llm_client=OpenAI(), fewshot_list=[]):
         self.model_name = model_name
         self.messages = []
         self.llm_client = llm_client
         self.tavily_client = TavilyClient()
 
-        if system_message is not None:
-            self.messages.append({"role": "system", "content": system_message})
+        if instructions is not None:
+            self.messages.append({"role": "system", "content": instructions})
 
         if fewshot_list:
             for index, content in enumerate(fewshot_list):
@@ -109,29 +109,20 @@ class InternetSearchChatbot:
     def __call__(self, message):
         return self.get_completion(message)
 
-
-messages_abs_path = os.path.join(
-    os.path.dirname(__file__), 'chat_messages.json')
-instructions_abs_path = os.path.join(
-    os.path.dirname(__file__), 'instructions.txt')
-
-with open(messages_abs_path, 'r', encoding="utf-8") as file:
-    fewshot_list = json.load(file)
-
-
-def create_assistant():
-    client = create_client('openai')
-    bot = InternetSearchChatbot(
-        system_message=open(instructions_abs_path).read(),
-        llm_client=client,
-        model_name="gpt-4o-mini",
-        # model_name="meta/llama-3.1-70b-instruct",
-        # fewshot_list=fewshot_list
-    )
-    return bot
-
-
-# assistant = create_assistant()
-# assistant.start_conversation_loop()
-
-# bot.start_conversation_loop()
+    # Define a @classmethod that returns an instance of the class
+    @classmethod
+    def create(cls):
+        messages_abs_path = os.path.abs(
+            os.path.dirname(__file__), 'chat_messages.json')
+        instructions_abs_path = os.path.abs(
+            os.path.dirname(__file__), 'instructions.txt')
+        client = create_client('openai')
+        with open(messages_abs_path, 'r', encoding="utf-8") as file:
+            fewshot_list = json.load(file)
+        bot = InternetSearchAssistant(
+            instructions=open(instructions_abs_path).read(),
+            llm_client=client,
+            model_name="gpt-4o-mini",
+            fewshot_list=fewshot_list
+        )
+        return bot

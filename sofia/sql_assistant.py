@@ -14,10 +14,11 @@ DB_PATH = 'SQLChatbot.db'
 SCHEMA_FILE = 'sql_system_message.txt'
 
 # Executa o pipeline de dados antes de inicializar o chatbot
-run_pipeline(DB_PATH, SCHEMA_FILE)
+# run_pipeline(os.path.abspath(os.path.join(os.path.dirname(__file__), DB_PATH)),
+#  os.path.abspath(os.path.join(os.path.dirname(__file__), SCHEMA_FILE)))
 
 
-class SQLChatbot:
+class SQLAssistant:
     def __init__(self, instruction, db_path, few_shot_list=None, table_schema=""):
         self.messages = []
         self.llm = OpenAI()
@@ -106,18 +107,26 @@ class SQLChatbot:
     def __call__(self, message):
         return self.call_llm(message)
 
+    @classmethod
+    def create(cls):
+        instructions_file = os.path.abspath(os.path.join(
+            os.path.dirname(__file__), SCHEMA_FILE))
+        with open(instructions_file, 'r') as f:
+            instruction = f.read()
+        db_abs_path = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), DB_PATH))
+        print('Creating bot with db path', db_abs_path)
+        sqlbot = cls(instruction, db_abs_path)
+        return sqlbot
+
 
 # Carregar instruções para o chatbot
-with open(SCHEMA_FILE, 'r') as f:
-    instruction = f.read()
-
-# Inicializar o chatbot e iniciar o loop de conversa
-db_agent = SQLChatbot(instruction, DB_PATH)
-db_agent.start_conversation_loop()
+# with open(SCHEMA_FILE, 'r') as f:
+#     instruction = f.read()
 
 
-def create_bot():
-    db_abs_path = os.path.abspath(DB_PATH).replace('server', 'sofia')
-    print('Creating bot with db path', db_abs_path)
-    sqlbot = SQLChatbot(instruction, db_abs_path)
-    return sqlbot
+# def create_bot():
+#     db_abs_path = os.path.abspath(DB_PATH).replace('server', 'sofia')
+#     print('Creating bot with db path', db_abs_path)
+#     sqlbot = SQLChatbot(instruction, db_abs_path)
+#     return sqlbot
