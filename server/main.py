@@ -10,8 +10,6 @@ from fastapi import FastAPI, File, UploadFile
 import sys
 import os
 
-sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
-
 app = FastAPI()
 
 BOT_DOCUMENT = "bot_document"
@@ -99,6 +97,20 @@ async def handle_document_upload(files: List[UploadFile] = File(...)):
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
 
+# A function that gets the absolute path to the first .pdf file in the "uploaded_files" directory.
+
+
+def get_first_file():
+    for file in get_uploaded_files():
+        if file.endswith('.pdf'):
+            print(f'Found file: {get_root_filepath(
+                f"{UPLOAD_DIRECTORY}/{file}")}')
+            return get_root_filepath(f"{UPLOAD_DIRECTORY}/{file}")
+    return None
+
+
+print(f'First file: {get_first_file()}')
+
 
 @app.post('/chat/{bot_name}/{conv_id}')
 def handleChat(message: Optional[UserMessage], bot_name=BOT_DOCUMENT, conv_id=""):
@@ -112,7 +124,8 @@ def handleChat(message: Optional[UserMessage], bot_name=BOT_DOCUMENT, conv_id=""
 
     if bot_name == BOT_DOCUMENT:
         if not document_bot:
-            document_bot = DocumentAssistant(filepath=document_filepaths[0])
+            first_file = get_first_file()
+            document_bot = DocumentAssistant(filepath=first_file)
         response = document_bot.process_user_message(message.content)
         return JSONResponse(content={"response": response}, status_code=200)
 

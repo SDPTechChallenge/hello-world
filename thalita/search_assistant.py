@@ -31,9 +31,7 @@ class InternetSearchAssistant:
             self.messages.append({"role": "system", "content": instructions})
 
         if fewshot_list:
-            for index, content in enumerate(fewshot_list):
-                role = "user" if index % 2 == 0 else "assistant"
-                self.messages.append({"role": role, "content": content})
+            self.messages.extend(fewshot_list)
 
     def get_completion(self, message):
         # A mensagem é sempre um dict contendo as chaves "role" e "content".
@@ -52,7 +50,9 @@ class InternetSearchAssistant:
             stream=False
         )
 
-        # Aqui, extraímos o conteúdo da resposta da LLM e o adicionamos à lista de mensagens.
+        if not response.choices:
+            return "Não foi possível obter resposta da LLM."
+
         response_text = response.choices[0].message.content
         self.messages.append({'role': 'assistant', 'content': response_text})
 
@@ -87,7 +87,9 @@ class InternetSearchAssistant:
         return joined_contents
 
     def save_messages_to_file(self, filename):
-        with open('chat_messages_2.json', 'w', encoding='utf-8') as file:
+        if not filename.endswith('.json'):
+            filename += '.json'
+        with open(filename, 'w', encoding='utf-8') as file:
             json.dump(self.messages, file, ensure_ascii=False, indent=4)
 
     def start_conversation_loop(self):
@@ -112,13 +114,14 @@ class InternetSearchAssistant:
     # Define a @classmethod that returns an instance of the class
     @classmethod
     def create(cls):
-        messages_abs_path = os.path.abs(
-            os.path.dirname(__file__), 'chat_messages.json')
-        instructions_abs_path = os.path.abs(
-            os.path.dirname(__file__), 'instructions.txt')
+        messages_abs_path = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), 'chat_messages.json'))
+        instructions_abs_path = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), 'instructions.txt'))
         client = create_client('openai')
         with open(messages_abs_path, 'r', encoding="utf-8") as file:
             fewshot_list = json.load(file)
+
         bot = InternetSearchAssistant(
             instructions=open(instructions_abs_path).read(),
             llm_client=client,

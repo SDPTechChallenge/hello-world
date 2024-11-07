@@ -1,0 +1,38 @@
+[
+    {
+        "role": "system",
+        "content": "You are an news search assistant. When asked about news and current world topics (e.g. stock market, recent or ongoing events and other similar real-time information), you must call a tool with the respective news query.\nTo call the tool, output the following response, without any additional commentary:\n\nNEWS_TOOL_CALL: <news_search_query>\n\nReplace `<news_search_query>` with the respective query in English (translate if necessary). Eg., \"NEWS_TOOL_CALL: Latest developments in war between Russia and Ukraine\" or \"NEWS_TOOL_CALL: Stock market updates\".\nThe tool will be invoked and a response containing the requested news, in the form of short article summaries, will be provided within <QUERY_RESULTS> tags.\nYou must then proceed to respond to the user query, using natural language, based on the tool's output. \n\n## Example conversation\n\nUser: Hello!\nAssistant: Hello! How are you doing?\nUser: I'm doing great, thanks. I'd like information on the US presidential election.\nAssistant: NEWS_TOOL_CALL: US presidential election\nUser: <QUERY_RESULTS>(Text containing news article summaries about the queried topic)</QUERY_RESULTS>\nAssistant: Here's a summary of the latest developments in the US presidential elections... (Use context provided above for news summarization).\nUser: Thanks!"
+    },
+    {
+        "role": "user",
+        "content": "Hello "
+    },
+    {
+        "role": "assistant",
+        "content": "Hello! How can I assist you today?"
+    },
+    {
+        "role": "user",
+        "content": "I need news on the US presidential elections."
+    },
+    {
+        "role": "assistant",
+        "content": "NEWS_TOOL_CALL: US presidential elections"
+    },
+    {
+        "role": "user",
+        "content": "<QUERY_RESULTS>US presidential election: Polling stations begin closing - BBC News BBC News Kamala Harris of the Democrat party has 3 electoral college votes. Donald Trump of the Republican party has 23 electoral college votes. Polling stations have begun closing in Tuesday's US election as millions of American voters decide whether Donald Trump or Kamala Harris will be the next president. Polling by the BBC's partner network, CBS, suggests around a third of people asked said the state of democracy was their top concern, out of the five options given. Polls close in key state of Georgia as Trump and Harris pick up early wins US election polls: Who is ahead - Harris or Trump? Elsewhere on the BBC US election polls: Who is ahead - Harris or Trump? About the BBC\n----------\nUS elections: Trump vows ‘no violence’ after casting vote US ELECTIONS ROLLING UPDATE: Trump vows ‘no violence’ after casting vote *[20:15 CET] Trump vows ‘no violence’ after casting vote* Donald Trump, the Republican candidate for U.S. president has said after casting his vote in Florida on Tuesday that there will be “no violence” if he loses to his Democratic rival, Kamala Harris. Americans Barry Wilmore and Sunita Williams, two of the astronauts aboard the International Space Station, have cast their votes remotely in the presidential elections, the space.com website reported. Americans vote on Tuesday in a presidential election expected to have profound implications for Central European security. #U.S.#ELECTIONS#WHITE HOUSE#EUROPE#DONALD TRUMP#KAMALA HARRIS Trump vows ‘no violence’ after casting vote Politics\n----------\nHome » World » America Washington DC: Americans are heading to the polls today to cast their ballots in the highly contested 2024 presidential election, where Democratic candidate Kamala Harris and her Republican rival, Donald Trump, are locked in a tight race. A candidate needs the vote of at least 270 electors--more than half of all electors--to win the presidential election. January to June of election year: States and parties hold presidential primaries and caucuses. In the US presidential elections, swing states are those in US presidential elections that could potentially be won by either candidate. Their opposites are known as safe states, which opinion polls leading up to the election identify as being highly likely won by a particular party's candidate.\n----------\nUS election results and map 2024: Donald Trump and Kamala Harris vie to be president | US elections 2024 | The Guardian These electors vote directly for the president, based on the results in the general election in their state. The Guardian has marked these elections where applicable above, and shows the results of the final result with redistributed votes. Live Trump casts ballot as millions vote – live US election updatesNews Here is what final polling data says about the US presidential electionExplainer When will we know the result of the US presidential election?News 2024 US presidential polls tracker: Trump v HarrisNews US Senate, House and governor elections 2024: results from all 50 statesExplainer When do polls close on election day, Tuesday, 5 November 2024?\n----------\nFirst Thing: Americans head to polls with historic election on a knife edge | US news | The Guardian US elections 2024 The Guardian view US elections 2024 Tens of millions of voters will cast their ballots on Tuesday in one of the tightest and most divided presidential elections in modern US history, with Kamala Harris and Donald Trump locked in a dead heat. Sign up for The Stakes: a free newsletter on the 2024 US presidential election Read more In other election news … Trump should concede defeat and “go and play golf” in Scotland if he loses the election, the Reform UK leader and Trump ally, Nigel Farage, has said, adding that Harris should pardon him to reduce the threat of unrest. The AP has been calling elections since 1848. US elections 2024</QUERY_RESULTS>"
+    },
+    {
+        "role": "assistant",
+        "content": "Here's a summary of the latest developments in the US presidential elections:\n\nPolling stations have begun closing as millions of Americans cast their votes in the highly contested 2024 presidential election between Democratic candidate Kamala Harris and Republican candidate Donald Trump. As of now, Trump has secured 23 electoral college votes, while Harris has 3. Polling indicates that a significant number of voters are concerned about the state of democracy.\n\nTrump, after voting in Florida, assured that there would be \"no violence\" if he were to lose. Notably, astronauts aboard the International Space Station also participated in the election by voting remotely.\n\nThe election is marked by a tight race, with both candidates locked in a dead heat. Voters are particularly focused on swing states, which could determine the outcome of the election. The electoral process requires a candidate to secure at least 270 electoral votes to win.\n\nAs the election unfolds, it is considered one of the closest and most divided in modern US history."
+    },
+    {
+        "role": "user",
+        "content": "quit"
+    },
+    {
+        "role": "assistant",
+        "content": "If you have any more questions in the future or need assistance, feel free to reach out. Have a great day!"
+    }
+]

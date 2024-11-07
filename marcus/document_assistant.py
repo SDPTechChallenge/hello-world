@@ -123,7 +123,7 @@ class DocumentAssistant:
 
     def submit_document_question(self, question):  # Pergunta feita pelo usuário
         # Processar a pergunta com base no contexto
-        result = self.rag_chain.stream({"input": question})
+        result = self.rag_chain.invoke({"input": question})
         return result
 
     def is_question_about_document(self, question):
@@ -147,7 +147,7 @@ class DocumentAssistant:
         if self.is_question_about_document(message):
             if not self.document_loaded:
                 return "No document loaded. Please load a document before asking a document-specific question."
-            llm_response = self.submit_document_question(message)
+            llm_response = self.submit_document_question(message)['answer']
             return llm_response
         else:
             llm_response = self.submit_general_question(message)

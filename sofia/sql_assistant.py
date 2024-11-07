@@ -4,7 +4,7 @@ import os
 import re
 import sqlite3 as sql
 import json
-from database import run_pipeline  # Importa o pipeline do database.py
+from .database import run_pipeline  # Importa o pipeline do database.py
 
 load_dotenv()
 
