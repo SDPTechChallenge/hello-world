@@ -2,8 +2,6 @@ import sqlite3 as sql
 
 
 def run_pipeline(db_path='SQLChatbot.db', schema_file='sql_system_message.txt'):
-    print(f'Running pipeline with db_path: {db_path} and schema_file: {schema_file}')
-    exit(0)
 
     # Conecta ao banco de dados SQLite e salva a estrutura do banco no arquivo de esquema.
     try:

@@ -18,8 +18,6 @@ client = OpenAI()
 #     api_key=os.getenv("NVIDIA_API_KEY")
 # )
 
-client = OpenAI()
-
 
 class DocumentAssistant:
 
