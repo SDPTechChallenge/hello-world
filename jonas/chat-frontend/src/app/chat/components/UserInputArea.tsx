@@ -3,7 +3,9 @@
 import { FiPaperclip as PaperClipIcon } from "react-icons/fi";
 import { FaArrowCircleUp as ArrowUp } from "react-icons/fa";
 import { DOCUMENT_UPLOAD_ENDPOINT } from "@/utils/api";
-import { ChangeEvent } from "react";
+import { ChangeEvent, useContext, useState } from "react";
+import { ChatContext } from "@/providers/ChatProvider";
+import { cn } from "@/lib/utils";
 
 interface UserInputAreaProps {
   userInput: string;
@@ -16,8 +18,11 @@ const UserInputArea: React.FC<UserInputAreaProps> = ({
   setUserInput,
   callChatEndpoint,
 }) => {
+  const [uploadedFiles, setUploadedFiles] = useState<FileList | null>(null);
+
   const handleFileInput = async (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
+    setUploadedFiles(files);
     if (files) {
       const formData = new FormData();
       for (let i = 0; i < files.length; i++) {
@@ -34,6 +39,8 @@ const UserInputArea: React.FC<UserInputAreaProps> = ({
       }
     }
   };
+
+  const { bot } = useContext(ChatContext);
 
   // @ts-ignore
   const submitInputIfEnter = (e) => {
@@ -55,24 +62,11 @@ const UserInputArea: React.FC<UserInputAreaProps> = ({
             className="user-input resize-none outline-none bg-transparent flex-1"
           ></textarea>
           <div className="input-controls-container flex flex-row items-center">
-            <label className="p-1 cursor-pointer" htmlFor="input-file">
-              <PaperClipIcon size={20} stroke={"#444"} />
-            </label>
-            <input
-              type="file"
-              onChange={handleFileInput}
-              className="hidden"
-              id="input-file"
+            <FileInputControls
+              handleFileInput={handleFileInput}
+              uploadedFiles={uploadedFiles}
+              isShown={bot === "bot_document"}
             />
-            <div className="uploaded-files-area ml-2">
-              <div className="pill-uploaded-file rounded-2xl w-28 h-8 p-1 flex items-center bg-sky-600">
-                <div className="upload-progress-circle rounded-full w-5 h-5 bg-white"></div>
-                <p className="text-xs font-semibold text-white ml-1">
-                  Arquivo.pdf
-                </p>
-              </div>
-            </div>
-
             <button className="header-1 ml-auto">
               <ArrowUp
                 size={24}
@@ -86,5 +80,50 @@ const UserInputArea: React.FC<UserInputAreaProps> = ({
     </form>
   );
 };
+
+interface FileInputProps {
+  handleFileInput: (e: ChangeEvent<HTMLInputElement>) => void;
+  uploadedFiles: FileList | null;
+  isShown: boolean;
+}
+
+const FileInputControls: React.FC<FileInputProps> = ({
+  handleFileInput,
+  uploadedFiles,
+  isShown,
+}) => {
+  return (
+    <div
+      className={cn(
+        "flex items-center transition-all duration-300 relative",
+        isShown ? "scale-100 opacity-100" : "scale-0 opacity-0"
+      )}
+    >
+      <label className="p-1 cursor-pointer" htmlFor="input-file">
+        <PaperClipIcon size={20} stroke={"#444"} />
+      </label>
+      <input
+        type="file"
+        multiple={true}
+        onChange={handleFileInput}
+        className="hidden"
+        id="input-file"
+      />
+      <div className="uploaded-files-area ml-2 space-x-1">
+        {uploadedFiles &&
+          [...uploadedFiles].map((file) => {
+            return <UploadedFilePill filename={file.name} />;
+          })}
+      </div>
+    </div>
+  );
+};
+
+const UploadedFilePill = ({ filename }: { filename: string }) => (
+  <div className="pill-uploaded-file rounded-2xl w-28 h-8 p-1 inline-flex items-center bg-sky-600">
+    <div className="upload-progress-circle rounded-full w-5 h-5 bg-white"></div>
+    <p className="text-xs font-semibold text-white ml-1">{filename}</p>
+  </div>
+);
 
 export default UserInputArea;
