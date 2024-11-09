@@ -6,6 +6,8 @@ import UserInputArea from "./components/UserInputArea";
 import { useState } from "react";
 import { getChatEndpoint } from "@/utils/api";
 import { getWritable } from "@/utils/chat-helpers";
+import Toaster from "@/components/custom/Toaster";
+import useToast from "@/components/custom/Toaster";
 
 const Home = () => {
   const [userInput, setUserInput] = useState("");
@@ -17,6 +19,8 @@ const Home = () => {
   const [files, setFiles] = useState<FileList | null>(null);
   const [chatOption, setChatOption] = useState("bot_sql");
   const [modelName, setModelName] = useState("gpt-4o-mini");
+
+  const { toast, Toaster } = useToast();
 
   async function callChatEndpoint(message: string) {
     setMessages((msgs) => [
@@ -58,6 +62,14 @@ const Home = () => {
 
   return (
     <main>
+      <Toaster />
+      <button
+        onClick={() => {
+          toast("error", "Test toast");
+        }}
+      >
+        Test toast
+      </button>
       <header className="fixed w-full h-12 flex flex-rows items-center justify-between bg-slate-200 px-4 z-10">
         <Header
           chatOption={chatOption}
