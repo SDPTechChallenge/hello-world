@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -21,7 +21,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
   currentMessage,
   waitingForResponse,
 }) => (
-  <div className="chat-outer-container relative pt-14 h-screen overflow-hidden">
+  
     <div className="chat-messages-container overflow-y-scroll h-full pb-28">
       <div className="chat-messages-inner-container max-w-[650px] mx-auto">
         {messages.map((message, index) =>
@@ -50,7 +50,6 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
         )}
       </div>
     </div>
-  </div>
 );
 
 export default ChatContainer;

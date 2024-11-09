@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { createContext, useEffect, useState } from "react";
+import {  useState } from "react";
 
 type ToasterProps = {
   type: "success" | "neutral" | "warning" | "error";
@@ -20,10 +20,13 @@ function useToast() {
     setType(type);
     setContent(content);
     setIsOpen(true);
-    setTimeout(() => setIsOpen(false), timeout);
   }
 
-  return { toast, Toaster: () => toasterElement };
+  function untoast() {
+    setIsOpen(false);
+  }
+
+  return { toast, untoast, Toaster: () => toasterElement };
 }
 
 const Toaster = (props: ToasterProps) => {
@@ -48,13 +51,13 @@ const Toaster = (props: ToasterProps) => {
       className={cn(
         "toast w-40 h-8 rounded-lg grid place-items-center absolute left-4 z-10 transition-all duration-500",
         bgColor[type],
-        textColor[type],
-        isOpen ? "bottom-4" : "-bottom-20"
+        textColor[type]
       )}
+      style={{ bottom: isOpen ? "1rem" : "-10rem" }}
     >
       <p className="text-center text-sm">{content}</p>
     </div>
   );
 };
 
-export default useToast;
+export default Toaster;
