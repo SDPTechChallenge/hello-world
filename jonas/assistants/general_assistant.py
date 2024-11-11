@@ -3,7 +3,7 @@ from openai.types.chat import ChatCompletionChunk
 from dotenv import load_dotenv
 from datetime import datetime
 from tavily import TavilyClient
-from typing import List, Dict, Annotated
+from typing import List, Dict, Callable
 import json
 import re
 import os
@@ -31,6 +31,7 @@ class GeneralAssistant():
         if instructions:
             self.messages.append({'role': 'system', 'content': instructions})
         if fewshow_list:
+            self.fewshow_list = fewshow_list
             self.messages.extend(fewshow_list)
 
     def _create_client(self, model_id: str):
@@ -47,7 +48,7 @@ class GeneralAssistant():
             print('Invalid model ID. Defaulting to OpenAI API.')
             return client
 
-    def _stream_generator(self, stream: Stream[ChatCompletionChunk], callback: function = None):
+    def _stream_generator(self, stream: Stream[ChatCompletionChunk], callback: Callable | None):
         complete_response = ""
         for chunk in stream:
             content = chunk.choices[0].delta.content
@@ -56,9 +57,9 @@ class GeneralAssistant():
                 if 'NEWS_TOOL_CALL' in content.upper():
                     self.will_call_tool = True
                 yield content
-        if self.will_call_tool:
-            tool_args = callback(complete_response)
-            self.tav_search_results = tav_search(tool_args)
+        # if self.will_call_tool:
+        #     tool_args = callback(complete_response)
+        #     self.tav_search_results = tav_search(tool_args)
 
         self.messages.append(
             {'role': 'assistant', 'content': complete_response})
@@ -69,7 +70,7 @@ class GeneralAssistant():
         with open(f"conversation_logs/{self.conversation_id}.json", "w") as file:
             json.dump(self.messages, file)
 
-    def call_llm(self, prompt, callback: function, stream=False,  **kwargs):
+    def call_llm(self, prompt, stream=False, callback: Callable = None,  **kwargs):
         self.messages.append({'role': 'user', 'content': prompt})
 
         completion = self.client.chat.completions.create(
@@ -78,6 +79,15 @@ class GeneralAssistant():
             messages=self.messages,
             **kwargs
         )
+
+        response_text = completion.choices[0].message.content
+
+        pattern = self.find_pattern(response_text)
+
+        if pattern:
+            print('[DEBUG] Pattern found:', pattern)
+            search_results = {'results': tav_search(pattern, topic='news')}
+            return self.call_llm(json.dumps(search_results, indent=4))
 
         if stream:
             return self._stream_generator(completion, self.find_pattern)
@@ -99,7 +109,7 @@ class GeneralAssistant():
         """
 
         if not pattern:
-            pattern = r"NEWS_TOOL_CALL\s*:\s*(.+)\s*"
+            pattern = r'NEWS_TOOL_CALL\s*:\s*(.*)'
 
         match = re.search(pattern, text.strip(), re.MULTILINE)
         if match:
@@ -107,5 +117,5 @@ class GeneralAssistant():
         else:
             return None
 
-    def sumit_message(self, message: str):
-        self.call_llm(message, stream=True)
+    def __call__(self, message: str, stream=False, **kwargs):
+        return self.call_llm(message, stream=stream, **kwargs)
