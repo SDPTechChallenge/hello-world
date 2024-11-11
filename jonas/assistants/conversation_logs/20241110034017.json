@@ -1,0 +1,73 @@
+[
+  {
+    "role": "system",
+    "content": "You are an news search assistant. If asked about news and current world topics (e.g. stock market, recent or ongoing events and other similar real-time information), you must call a tool with the respective news query.\nTo call the tool, use the following syntax, without any additional commentary:\n\nNEWS_TOOL_CALL: <news_search_query>\n\nReplace `<news_search_query>` with the respective query in English (translate if necessary). Eg., \"NEWS_TOOL_CALL: Latest developments in war between Russia and Ukraine\" or \"NEWS_TOOL_CALL: Stock market updates\".\nThe tool will be invoked and a response containing the requested news, in the form of short article summaries, will be provided within <QUERY_RESULTS> tags.\nYou must then proceed to respond to the user query, using natural language, based on the tool's output. \n\nOnly call the provided tool if the user asks a questions about news or real-time information on a recent topic/event. If the user asks for general information or definitions, do not call the tool, and use your own knowledge to respond."
+  },
+  { "role": "user", "content": "Hello there!" },
+  { "role": "assistant", "content": "Hello! How can I assist you today?" },
+  { "role": "user", "content": "I need information on the war in Palestine" },
+  {
+    "role": "assistant",
+    "content": "To provide more accurate and up-to-date information, I'll need to call a news search tool:\n\nNEWS_TOOL_CALL: Recent developments in conflict in Palestine"
+  },
+  {
+    "role": "user",
+    "content": "<QUERY_RESULTS>Israeli football fans have clashed with apparent pro-Palestinian protesters before and after a Europa League football match between their team Maccabi Tel Aviv and Ajax in Amsterdam."
+  },
+  {
+    "role": "assistant",
+    "content": "It seems that the news search tool has provided a new development regarding the conflict in Palestine, but that's unrelated to my previous call. \n\nHowever, to provide more information on the war in Palestine, I'll stick to that:\n\nNEWS_TOOL_CALL: Conflict in Palestine"
+  },
+  { "role": "user", "content": "" },
+  {
+    "role": "assistant",
+    "content": "It seems like you've lost interest in the news related to Palestine. If you'd like to start a new conversation, feel free to ask a question or discuss a different topic.\n\nIf you're interested, I can summarize some general information about the conflict in Palestine. The conflict refers to the series of disputes and wars between Israelis and Palestinians over the territory that is now known as Israel and the Palestinian territories."
+  },
+  {
+    "role": "user",
+    "content": "It's ok. Who was the second president of Brazil?"
+  },
+  {
+    "role": "assistant",
+    "content": "The second president of Brazil was Manuel Deodoro da Fonseca. He served from 1889 to 1891."
+  },
+  { "role": "user", "content": "Provide details about him in JSON format." },
+  {
+    "role": "assistant",
+    "content": "```json\n{\n  \"name\": \"Manuel Deodoro da Fonseca\",\n  \"job_title\": \"President of Brazil\",\n  \"term_start\": 1889,\n  \"term_end\": 1891,\n  \"nationality\": \"Brazilian\",\n  \" UnoLa ideologia\": \"Politico\",\n  \"other_public_office\": \"\"\n}\n```"
+  },
+  { "role": "user", "content": "I need news on the US presidential elections" },
+  {
+    "role": "assistant",
+    "content": "NEWS_TOOL_CALL: US presidential elections 2024"
+  },
+  {
+    "role": "user",
+    "content": "<QUERY_RESULTS>No results found</QUERY_RESULTS>"
+  },
+  {
+    "role": "assistant",
+    "content": "It seems that the news search tool couldn't find any relevant results for the US presidential elections 2024 as of the current time. If you're looking for general information on the US presidential elections or details about past elections, I'd be happy to help.\n\nAlternatively, you can also ask your question in a more general sense, such as \"What are the current contenders for the 2024 US presidential election?\" or \"What are the key issues that will be decided in the 2024 US presidential election?\" I can try to provide some general insights or point you in the direction of reliable news sources."
+  },
+  {
+    "role": "user",
+    "content": "What are the current contenders for the 2024 US presidential election?"
+  },
+  {
+    "role": "assistant",
+    "content": "Since the 2024 US presidential election is still several months away, the list of contenders is constantly changing. However, I can provide some information on the current notable candidates or potential candidates who have expressed interest in running.\n\nThat being said, please note that the information I provide may not be up-to-date or exhaustive. To get the most recent and accurate information, I recommend checking reputable news sources such as CNN, NBC, NPR, or The New York Times.\n\nSome notable names that have been mentioned as potential candidates include:\n\n* Democrats:\n\t+ Joe Biden (Incumbent President)\n\t+ Marianne Williamson\n\t+ Robert F. Kennedy Jr.\n\t+ Steve Bullock\n* Republicans:\n\t+ Donald Trump\n\t+ Nikki Haley\n\t+ Ted Cruz\n\t+ Vivek Ramsay\n* Other notable candidates:\n\t+ Former Governor of New Jersey Phil Murphy\n\t+ Former Governor of Michigan Gretchen Whitmer\n\nKeep in mind that this is not an exhaustive list, and new candidates may enter the race or drop out."
+  },
+  {
+    "role": "user",
+    "content": "Thanks. Summarize our conversation so far in one brief paragraph."
+  },
+  {
+    "role": "assistant",
+    "content": "We discussed various topics, starting with news about the conflict in Palestine, for which I called a news search tool to retrieve recent developments. The tool didn't find any relevant news for the specific query, so I provided general information on the conflict. We then shifted to unrelated topics, including the UN Laideologia of Manuel Deodoro da Fonseca, the 2nd President of Brazil, and his brief JSON summary. Finally, we discussed the 2024 US presidential elections, including the current contenders and potential candidates, and I clarified that the information may not be up-to-date or exhaustive."
+  },
+  { "role": "user", "content": "Thanks, bye." },
+  {
+    "role": "assistant",
+    "content": "Bye! It was a pleasure chatting with you. Have a great day!"
+  }
+]

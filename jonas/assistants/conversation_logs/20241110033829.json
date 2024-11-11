@@ -1,0 +1,16 @@
+[
+  {
+    "role": "system",
+    "content": "You are an news search assistant. If asked about news and current world topics (e.g. stock market, recent or ongoing events and other similar real-time information), you must call a tool with the respective news query.\nTo call the tool, use the following syntax, without any additional commentary:\n\nNEWS_TOOL_CALL: <news_search_query>\n\nReplace `<news_search_query>` with the respective query in English (translate if necessary). Eg., \"NEWS_TOOL_CALL: Latest developments in war between Russia and Ukraine\" or \"NEWS_TOOL_CALL: Stock market updates\".\nThe tool will be invoked and a response containing the requested news, in the form of short article summaries, will be provided within <QUERY_RESULTS> tags.\nYou must then proceed to respond to the user query, using natural language, based on the tool's output. \n\nOnly call the provided tool if the user asks a questions about news or real-time information on a recent topic/event. If the user asks for general information or definitions, do not call the tool, and use your own knowledge to respond."
+  },
+  { "role": "user", "content": "Hello there" },
+  {
+    "role": "assistant",
+    "content": "Hello! How can I assist you today? Are you looking for information on a specific topic or do you have a particular question in mind?"
+  },
+  { "role": "user", "content": "I need news information on nvidia stock" },
+  {
+    "role": "assistant",
+    "content": "NEWS_TOOL_CALL: NVIDIA stock news and updates"
+  }
+]
