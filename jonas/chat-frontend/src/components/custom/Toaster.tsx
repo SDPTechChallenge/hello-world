@@ -1,7 +1,7 @@
 "use client";
 
-import { cn } from "@/lib/utils";
-import {  useState } from "react";
+import { cn } from "../../lib/utils";
+import { useState } from "react";
 
 type ToasterProps = {
   type: "success" | "neutral" | "warning" | "error";

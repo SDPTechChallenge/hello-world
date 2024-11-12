@@ -5,7 +5,7 @@ import { FaArrowCircleUp as ArrowUp } from "react-icons/fa";
 import { DOCUMENT_UPLOAD_ENDPOINT } from "@/utils/api";
 import { ChangeEvent, useContext, useState } from "react";
 import { ChatContext } from "@/providers/ChatProvider";
-import { cn } from "@/lib/utils";
+import { cn } from "../../../lib/utils"
 
 interface UserInputAreaProps {
   userInput: string;
