@@ -21,7 +21,7 @@ def tav_search(query, search_depth='basic', topic='general') -> List[Dict[str, s
 
 
 class GeneralAssistant():
-    def __init__(self, model_id="gpt-4o-mini", instructions="", fewshow_list=[]):
+    def __init__(self, model_id="gpt-4o-mini", instructions="", fewshot_list=[]):
         self.client = OpenAI()
         self.messages = []
         self.model_id = model_id
@@ -30,9 +30,8 @@ class GeneralAssistant():
         self.will_call_tool = False
         if instructions:
             self.messages.append({'role': 'system', 'content': instructions})
-        if fewshow_list:
-            self.fewshow_list = fewshow_list
-            self.messages.extend(fewshow_list)
+        if fewshot_list:
+            self.messages += fewshot_list
 
     def _create_client(self, model_id: str):
         client = OpenAI()
@@ -86,6 +85,8 @@ class GeneralAssistant():
 
         if pattern:
             print('[DEBUG] Pattern found:', pattern)
+            self.messages.append(
+                {'role': 'assistant', 'content': response_text})
             search_results = {'results': tav_search(pattern, topic='news')}
             return self.call_llm(json.dumps(search_results, indent=4))
 

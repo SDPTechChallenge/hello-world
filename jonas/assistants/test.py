@@ -12,7 +12,7 @@ MISTRAL_MODEL = 'mistralai/mistral-7b-instruct-v0.3'
 GPT_MODEL = 'gpt-4o-mini'
 
 assistant = GeneralAssistant(
-    GPT_MODEL, instructions=instructions, fewshow_list=fewshot_list)
+    LLAMA_MODEL, instructions=instructions, fewshot_list=fewshot_list)
 
 
 def conversation_loop():
@@ -30,5 +30,8 @@ def conversation_loop():
 
 
 conversation_loop()
+
+# for message in assistant.messages:
+#     print(message)
 
 # print(assistant.messages[-1]['content'])
